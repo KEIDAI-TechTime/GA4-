@@ -10,8 +10,8 @@ interface Property {
 }
 
 export default function PropertySelection() {
+  const navigate = useNavigate();
   const [selectedGA4, setSelectedGA4] = useState<string>('');
-  const [selectedSearchConsole, setSelectedSearchConsole] = useState<string>('');
 
   // モックデータ（実際はGoogle APIから取得）
   const ga4Properties: Property[] = [
@@ -27,8 +27,8 @@ export default function PropertySelection() {
   ];
 
   const handleContinue = () => {
-    if (selectedGA4 && selectedSearchConsole) {
-      window.REACT_APP_NAVIGATE('/industry-selection');
+    if (selectedGA4) {
+      navigate('/industry-selection');
     }
   };
 
