@@ -1,6 +1,6 @@
-
 import { lazy } from 'react';
 import type { RouteObject } from 'react-router-dom';
+import ProtectedRoute from '../components/ProtectedRoute';
 
 const Home = lazy(() => import('../pages/home/page'));
 const NotFound = lazy(() => import('../pages/NotFound'));
@@ -21,19 +21,35 @@ const routes: RouteObject[] = [
   },
   {
     path: '/property-selection',
-    element: <PropertySelection />,
+    element: (
+      <ProtectedRoute>
+        <PropertySelection />
+      </ProtectedRoute>
+    ),
   },
   {
     path: '/industry-selection',
-    element: <IndustrySelection />,
+    element: (
+      <ProtectedRoute>
+        <IndustrySelection />
+      </ProtectedRoute>
+    ),
   },
   {
     path: '/dashboard',
-    element: <Dashboard />,
+    element: (
+      <ProtectedRoute>
+        <Dashboard />
+      </ProtectedRoute>
+    ),
   },
   {
     path: '/settings',
-    element: <Settings />,
+    element: (
+      <ProtectedRoute>
+        <Settings />
+      </ProtectedRoute>
+    ),
   },
   {
     path: '*',

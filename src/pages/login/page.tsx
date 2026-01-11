@@ -1,33 +1,50 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { useAuth } from '../../context/AuthContext';
 
 export default function Login() {
   const navigate = useNavigate();
+  const { user, signInWithGoogle } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleGoogleLogin = () => {
-    setIsLoading(true);
-    setTimeout(() => {
+  // 既にログイン済みならリダイレクト
+  useEffect(() => {
+    if (user) {
       navigate('/property-selection');
-    }, 1000);
+    }
+  }, [user, navigate]);
+
+  const handleGoogleLogin = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      await signInWithGoogle();
+      navigate('/property-selection');
+    } catch (err) {
+      console.error('Login error:', err);
+      setError('ログインに失敗しました。もう一度お試しください。');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-50 flex items-center justify-center p-4">
-      <motion.div 
+      <motion.div
         className="max-w-md w-full"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: 'easeOut' }}
       >
-        <motion.div 
+        <motion.div
           className="text-center mb-8"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
         >
-          <motion.div 
+          <motion.div
             className="w-16 h-16 bg-gradient-to-br from-teal-500 to-teal-600 rounded-2xl flex items-center justify-center mx-auto mb-4"
             whileHover={{ scale: 1.05, rotate: 5 }}
             transition={{ duration: 0.3 }}
@@ -38,13 +55,23 @@ export default function Login() {
           <p className="text-slate-600">Googleアカウントでログイン</p>
         </motion.div>
 
-        <motion.div 
+        <motion.div
           className="bg-white rounded-2xl p-8 shadow-sm border border-slate-100"
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5, delay: 0.3 }}
           whileHover={{ y: -4 }}
         >
+          {error && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm"
+            >
+              {error}
+            </motion.div>
+          )}
+
           <motion.button
             onClick={handleGoogleLogin}
             disabled={isLoading}
@@ -72,7 +99,7 @@ export default function Login() {
             )}
           </motion.button>
 
-          <motion.div 
+          <motion.div
             className="mt-6 pt-6 border-t border-slate-100"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -88,7 +115,7 @@ export default function Login() {
           </motion.div>
         </motion.div>
 
-        <motion.div 
+        <motion.div
           className="mt-8 text-center"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}

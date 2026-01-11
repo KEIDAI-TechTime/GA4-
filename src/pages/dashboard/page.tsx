@@ -56,7 +56,7 @@ export default function Dashboard() {
         </motion.div>
 
         <motion.div variants={itemVariants}>
-          <SummaryCards />
+          <SummaryCards dateRange={dateRange} />
         </motion.div>
 
         <motion.div variants={itemVariants}>
