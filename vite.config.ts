@@ -5,6 +5,9 @@ import AutoImport from "unplugin-auto-import/vite";
 
 // https://vite.dev/config/
 export default defineConfig({
+  define: {
+    __BASE_PATH__: JSON.stringify("/"),
+  },
   plugins: [
     react(),
     AutoImport({
