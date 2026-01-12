@@ -4,10 +4,10 @@
 export const STRIPE_CONFIG = {
   // Monthly Pro plan price ID
   // Create this in Stripe Dashboard: Products > Add product > Add pricing
-  proPriceId: process.env.VITE_STRIPE_PRO_PRICE_ID || 'price_XXXXXXXXXXXXX',
+  proPriceId: import.meta.env.VITE_STRIPE_PRO_PRICE_ID || 'price_XXXXXXXXXXXXX',
 
   // Yearly Pro plan price ID (optional, for discount)
-  proYearlyPriceId: process.env.VITE_STRIPE_PRO_YEARLY_PRICE_ID || 'price_XXXXXXXXXXXXX',
+  proYearlyPriceId: import.meta.env.VITE_STRIPE_PRO_YEARLY_PRICE_ID || 'price_XXXXXXXXXXXXX',
 };
 
 export const PLANS = {
