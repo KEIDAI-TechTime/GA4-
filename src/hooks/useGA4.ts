@@ -80,15 +80,35 @@ function getDateRange(range: string): { startDate: string; endDate: string } {
   };
 }
 
-// Fetch basic metrics
+// Get previous period date range (same duration, immediately before current period)
+function getPreviousPeriodDateRange(range: string): { startDate: string; endDate: string } {
+  const { startDate, endDate } = getDateRange(range);
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+  const duration = end.getTime() - start.getTime();
+
+  const prevEnd = new Date(start.getTime() - 1); // 1 day before current start
+  const prevStart = new Date(prevEnd.getTime() - duration);
+
+  return {
+    startDate: prevStart.toISOString().split('T')[0],
+    endDate: prevEnd.toISOString().split('T')[0],
+  };
+}
+
+// Basic metrics type
+interface BasicMetrics {
+  pageViews: number;
+  users: number;
+  sessions: number;
+  bounceRate: number;
+  avgSessionDuration: number;
+}
+
+// Fetch basic metrics (with previous period comparison)
 export function useBasicMetrics(propertyId: string | null, dateRange: string = '30days') {
-  const [data, setData] = useState<{
-    pageViews: number;
-    users: number;
-    sessions: number;
-    bounceRate: number;
-    avgSessionDuration: number;
-  } | null>(null);
+  const [data, setData] = useState<BasicMetrics | null>(null);
+  const [previousData, setPreviousData] = useState<BasicMetrics | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -102,8 +122,16 @@ export function useBasicMetrics(propertyId: string | null, dateRange: string = '
       try {
         setLoading(true);
         const { startDate, endDate } = getDateRange(dateRange);
-        const metrics = await getBasicMetrics(propertyId, startDate, endDate);
-        setData(metrics);
+        const { startDate: prevStartDate, endDate: prevEndDate } = getPreviousPeriodDateRange(dateRange);
+
+        // Fetch both current and previous period in parallel
+        const [currentMetrics, prevMetrics] = await Promise.all([
+          getBasicMetrics(propertyId, startDate, endDate),
+          getBasicMetrics(propertyId, prevStartDate, prevEndDate),
+        ]);
+
+        setData(currentMetrics);
+        setPreviousData(prevMetrics);
         setError(null);
       } catch (err) {
         console.error('Failed to fetch metrics:', err);
@@ -116,7 +144,7 @@ export function useBasicMetrics(propertyId: string | null, dateRange: string = '
     fetchData();
   }, [propertyId, dateRange]);
 
-  return { data, loading, error };
+  return { data, previousData, loading, error };
 }
 
 // Fetch page views by date (for charts)

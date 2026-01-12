@@ -33,40 +33,50 @@ function formatDuration(seconds: number): string {
   return `${mins}:${secs.toString().padStart(2, '0')}`;
 }
 
+function calculateChange(current: number, previous: number): { percent: string; isPositive: boolean } {
+  if (previous === 0) return { percent: '-', isPositive: true };
+  const change = ((current - previous) / previous) * 100;
+  const isPositive = change >= 0;
+  return {
+    percent: `${isPositive ? '+' : ''}${change.toFixed(1)}%`,
+    isPositive,
+  };
+}
+
 export default function SummaryCards({ dateRange = '30days' }: SummaryCardsProps) {
   const { propertyId } = useSelectedProperty();
-  const { data, loading, error } = useBasicMetrics(propertyId, dateRange);
+  const { data, previousData, loading, error } = useBasicMetrics(propertyId, dateRange);
 
   const cards = [
     {
       title: 'PV（ページビュー）',
       value: data ? formatNumber(data.pageViews) : '-',
-      change: '-', // 前期比は別途API呼び出しが必要
-      isPositive: true,
+      previousValue: previousData ? formatNumber(previousData.pageViews) : null,
+      change: data && previousData ? calculateChange(data.pageViews, previousData.pageViews) : null,
       icon: 'ri-eye-line',
       color: 'from-blue-500 to-blue-600',
     },
     {
       title: 'ユーザー数',
       value: data ? formatNumber(data.users) : '-',
-      change: '-',
-      isPositive: true,
+      previousValue: previousData ? formatNumber(previousData.users) : null,
+      change: data && previousData ? calculateChange(data.users, previousData.users) : null,
       icon: 'ri-user-line',
       color: 'from-teal-500 to-teal-600',
     },
     {
       title: 'セッション数',
       value: data ? formatNumber(data.sessions) : '-',
-      change: '-',
-      isPositive: true,
+      previousValue: previousData ? formatNumber(previousData.sessions) : null,
+      change: data && previousData ? calculateChange(data.sessions, previousData.sessions) : null,
       icon: 'ri-check-double-line',
       color: 'from-purple-500 to-purple-600',
     },
     {
       title: '平均滞在時間',
       value: data ? formatDuration(data.avgSessionDuration) : '-',
-      change: '-',
-      isPositive: true,
+      previousValue: previousData ? formatDuration(previousData.avgSessionDuration) : null,
+      change: data && previousData ? calculateChange(data.avgSessionDuration, previousData.avgSessionDuration) : null,
       icon: 'ri-time-line',
       color: 'from-orange-500 to-orange-600',
     },
@@ -120,23 +130,30 @@ export default function SummaryCards({ dateRange = '30days' }: SummaryCardsProps
             >
               <i className={`${card.icon} text-white text-xl`}></i>
             </div>
-            {card.change !== '-' && (
+            {card.change && card.change.percent !== '-' && (
               <span
-                className={`text-sm font-bold ${card.isPositive ? 'text-teal-600' : 'text-red-600'}`}
+                className={`text-sm font-bold ${card.change.isPositive ? 'text-teal-600' : 'text-red-600'}`}
               >
-                {card.change}
+                {card.change.percent}
               </span>
             )}
           </div>
           <h3 className="text-slate-600 text-sm font-medium mb-1">{card.title}</h3>
-          <motion.p
-            className="text-3xl font-bold text-slate-900"
-            initial={{ opacity: 0, scale: 0.5 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: index * 0.1 + 0.2, duration: 0.5, ease: 'easeOut' }}
-          >
-            {card.value}
-          </motion.p>
+          <div className="flex items-baseline gap-2">
+            <motion.p
+              className="text-3xl font-bold text-slate-900"
+              initial={{ opacity: 0, scale: 0.5 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: index * 0.1 + 0.2, duration: 0.5, ease: 'easeOut' }}
+            >
+              {card.value}
+            </motion.p>
+            {card.previousValue && (
+              <span className="text-sm text-slate-400">
+                ({card.previousValue})
+              </span>
+            )}
+          </div>
         </motion.div>
       ))}
     </div>
