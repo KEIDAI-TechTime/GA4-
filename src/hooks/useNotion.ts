@@ -101,7 +101,7 @@ export function useNotionSettings() {
 
   // Load settings
   useEffect(() => {
-    if (!user?.uid) {
+    if (!user?.email) {
       setSettings(null);
       setLoading(false);
       return;
@@ -110,10 +110,10 @@ export function useNotionSettings() {
     async function loadSettings() {
       try {
         setLoading(true);
-        const userSettings = await getUserSettings(user.uid);
+        const userSettings = await getUserSettings(user.email!);
         setSettings(
           userSettings || {
-            userId: user.uid,
+            email: user.email!,
             emailNotifications: true,
             weeklyReport: true,
             alertThreshold: 10,
@@ -125,7 +125,7 @@ export function useNotionSettings() {
         console.error('Failed to load settings:', err);
         // Use defaults on error
         setSettings({
-          userId: user.uid,
+          email: user.email!,
           emailNotifications: true,
           weeklyReport: true,
           alertThreshold: 10,
@@ -137,12 +137,12 @@ export function useNotionSettings() {
     }
 
     loadSettings();
-  }, [user?.uid]);
+  }, [user?.email]);
 
   // Save settings
   const saveSettings = useCallback(
     async (newSettings: Partial<NotionUserSettings>) => {
-      if (!user?.uid || !settings) return;
+      if (!user?.email || !settings) return;
 
       const updatedSettings = { ...settings, ...newSettings };
 
@@ -154,7 +154,7 @@ export function useNotionSettings() {
         throw err;
       }
     },
-    [user?.uid, settings]
+    [user?.email, settings]
   );
 
   return {

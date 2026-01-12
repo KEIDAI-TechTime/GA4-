@@ -54,11 +54,17 @@ Notion で新しいデータベースを作成し、以下のプロパティを�
 | プロパティ名 | タイプ | 説明 |
 |-------------|--------|------|
 | Name | Title | 設定名（自動生成） |
-| UserId | Text | Firebase UID |
+| User | Relation | Usersテーブルへのリレーション |
 | EmailNotifications | Checkbox | メール通知 |
 | WeeklyReport | Checkbox | 週次レポート |
 | AlertThreshold | Number | アラートしきい値（%） |
 | Language | Select | 言語設定 |
+
+### User リレーションの設定
+
+1. 「User」プロパティを追加 → タイプ「リレーション」を選択
+2. リレーション先として「Users」データベースを選択
+3. 「1つのページにつき1件まで」を推奨
 
 ### Select オプション（Language）
 

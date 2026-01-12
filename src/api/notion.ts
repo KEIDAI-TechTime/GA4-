@@ -18,7 +18,7 @@ export interface NotionUser {
 
 export interface NotionUserSettings {
   id?: string;
-  userId: string;
+  email: string;
   emailNotifications: boolean;
   weeklyReport: boolean;
   alertThreshold: number;
@@ -75,8 +75,8 @@ export async function updateUserSettings(settings: NotionUserSettings): Promise<
 }
 
 // Get user settings
-export async function getUserSettings(userId: string): Promise<NotionUserSettings | null> {
-  const response = await fetch(`${NOTION_API_BASE}/settings?userId=${encodeURIComponent(userId)}`);
+export async function getUserSettings(email: string): Promise<NotionUserSettings | null> {
+  const response = await fetch(`${NOTION_API_BASE}/settings?email=${encodeURIComponent(email)}`);
 
   if (response.status === 404) {
     return null;
