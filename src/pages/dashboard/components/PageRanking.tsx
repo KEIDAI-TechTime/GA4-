@@ -1,13 +1,69 @@
-export default function PageRanking() {
-  const pages = [
-    { name: 'トップページ', path: '/', views: 8542, change: 12 },
-    { name: '商品一覧', path: '/products', views: 5231, change: -8 },
-    { name: '会社概要', path: '/about', views: 3892, change: 5 },
-    { name: 'お問い合わせ', path: '/contact', views: 2156, change: 15 },
-    { name: 'ブログ記事', path: '/blog/article-1', views: 1847, change: 22 },
-  ];
+import { useTopPages, useSelectedProperty } from '../../../hooks/useGA4';
 
-  const maxViews = Math.max(...pages.map(p => p.views));
+interface PageRankingProps {
+  dateRange?: string;
+}
+
+export default function PageRanking({ dateRange = '30days' }: PageRankingProps) {
+  const { propertyId } = useSelectedProperty();
+  const { data, loading, error } = useTopPages(propertyId, dateRange);
+
+  // データを整形
+  const pages = data.slice(0, 5).map(item => ({
+    name: getPageName(item.pagePath),
+    path: item.pagePath,
+    views: item.pageViews,
+  }));
+
+  const maxViews = Math.max(...pages.map(p => p.views), 1);
+
+  if (loading) {
+    return (
+      <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
+        <div className="flex items-center justify-between mb-5">
+          <div>
+            <h2 className="text-lg font-bold text-slate-900">ページ別アクセス</h2>
+            <p className="text-sm text-slate-500">上位5ページ</p>
+          </div>
+        </div>
+        <div className="h-64 flex items-center justify-center">
+          <div className="w-10 h-10 border-4 border-teal-500 border-t-transparent rounded-full animate-spin"></div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
+        <div className="flex items-center justify-between mb-5">
+          <div>
+            <h2 className="text-lg font-bold text-slate-900">ページ別アクセス</h2>
+            <p className="text-sm text-slate-500">上位5ページ</p>
+          </div>
+        </div>
+        <div className="h-64 flex items-center justify-center text-red-500">
+          <p>データの取得に失敗しました</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (pages.length === 0) {
+    return (
+      <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
+        <div className="flex items-center justify-between mb-5">
+          <div>
+            <h2 className="text-lg font-bold text-slate-900">ページ別アクセス</h2>
+            <p className="text-sm text-slate-500">上位5ページ</p>
+          </div>
+        </div>
+        <div className="h-64 flex items-center justify-center text-slate-500">
+          <p>データがありません</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
@@ -38,13 +94,6 @@ export default function PageRanking() {
                 <span className="text-sm font-bold text-slate-900 whitespace-nowrap">
                   {page.views.toLocaleString()}
                 </span>
-                <span
-                  className={`text-xs font-bold whitespace-nowrap ${
-                    page.change > 0 ? 'text-green-600' : 'text-red-600'
-                  }`}
-                >
-                  {page.change > 0 ? '+' : ''}{page.change}%
-                </span>
               </div>
             </div>
             <div className="w-full bg-slate-100 rounded-full h-2">
@@ -58,4 +107,42 @@ export default function PageRanking() {
       </div>
     </div>
   );
+}
+
+// パスからページ名を推測
+function getPageName(path: string): string {
+  if (path === '/' || path === '') return 'トップページ';
+
+  // パスの最後のセグメントを取得
+  const segments = path.split('/').filter(Boolean);
+  const lastSegment = segments[segments.length - 1] || '';
+
+  // 一般的なパスを日本語に変換
+  const pathMap: Record<string, string> = {
+    'about': '会社概要',
+    'contact': 'お問い合わせ',
+    'products': '商品一覧',
+    'services': 'サービス',
+    'blog': 'ブログ',
+    'news': 'ニュース',
+    'faq': 'よくある質問',
+    'privacy': 'プライバシーポリシー',
+    'terms': '利用規約',
+    'company': '会社情報',
+    'access': 'アクセス',
+    'recruit': '採用情報',
+    'price': '料金',
+    'pricing': '料金',
+    'features': '機能',
+    'support': 'サポート',
+    'help': 'ヘルプ',
+  };
+
+  // マッピングがあれば使用
+  if (pathMap[lastSegment.toLowerCase()]) {
+    return pathMap[lastSegment.toLowerCase()];
+  }
+
+  // なければパスをそのまま表示（先頭を大文字に）
+  return lastSegment.charAt(0).toUpperCase() + lastSegment.slice(1);
 }

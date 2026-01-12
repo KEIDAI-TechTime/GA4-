@@ -67,7 +67,7 @@ export default function Dashboard() {
           className="grid grid-cols-1 lg:grid-cols-2 gap-6"
           variants={itemVariants}
         >
-          <PageRanking />
+          <PageRanking dateRange={dateRange} />
           <KeywordRanking />
         </motion.div>
 
