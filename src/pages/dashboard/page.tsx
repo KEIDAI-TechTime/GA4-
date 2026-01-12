@@ -60,10 +60,10 @@ export default function Dashboard() {
         </motion.div>
 
         <motion.div variants={itemVariants}>
-          <AccessTrendChart />
+          <AccessTrendChart dateRange={dateRange} />
         </motion.div>
 
-        <motion.div 
+        <motion.div
           className="grid grid-cols-1 lg:grid-cols-2 gap-6"
           variants={itemVariants}
         >
@@ -71,12 +71,12 @@ export default function Dashboard() {
           <KeywordRanking />
         </motion.div>
 
-        <motion.div 
+        <motion.div
           className="grid grid-cols-1 lg:grid-cols-2 gap-6"
           variants={itemVariants}
         >
-          <TrafficSources />
-          <DeviceBreakdown />
+          <TrafficSources dateRange={dateRange} />
+          <DeviceBreakdown dateRange={dateRange} />
         </motion.div>
 
         <motion.div variants={itemVariants}>
