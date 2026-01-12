@@ -84,12 +84,19 @@ function buildPrompt(data: AnalyticsData): string {
   const mobileDevice = data.deviceBreakdown.find(d => d.device === 'mobile');
   const mobilePercentage = mobileDevice?.percentage || 0;
 
-  const topSource = data.trafficSources[0]?.source || 'unknown';
-  const topPages = data.topPages.slice(0, 5).map(p => p.pageTitle || p.pagePath).join(', ');
+  // 流入元を詳細に
+  const trafficDetails = data.trafficSources.slice(0, 5).map(s =>
+    `${s.source}(${s.sessions}セッション)`
+  ).join(', ');
 
-  return `あなたはウェブサイト分析の専門家です。以下のGA4データを分析し、改善提案と業界比較を提供してください。
+  // ページ情報を詳細に（タイトルとパス両方）
+  const pageDetails = data.topPages.slice(0, 10).map(p =>
+    `「${p.pageTitle || '(タイトルなし)'}」(${p.pagePath}, ${p.pageViews}PV)`
+  ).join('\n  ');
 
-## サイトデータ
+  return `あなたはウェブサイト分析の専門家です。以下のGA4データを分析し、サイトの特色を把握した上で改善提案と業界比較を提供してください。
+
+## サイト基本情報
 - 業種: ${data.industry}
 - PV（ページビュー）: ${data.pageViews}
 - ユーザー数: ${data.users}
@@ -97,16 +104,23 @@ function buildPrompt(data: AnalyticsData): string {
 - 直帰率: ${data.bounceRate.toFixed(1)}%
 - 平均セッション時間: ${Math.floor(data.avgSessionDuration / 60)}分${Math.floor(data.avgSessionDuration % 60)}秒
 - モバイル比率: ${mobilePercentage.toFixed(1)}%
-- 主要流入元: ${topSource}
-- 人気ページ: ${topPages}
+
+## 流入元の内訳
+${trafficDetails}
+
+## 人気ページ（上位10件）
+  ${pageDetails}
 
 ## 出力形式
 以下のJSON形式で回答してください。日本語で記述してください。
 
 {
   "siteOverview": {
-    "description": "サイトの特色・概要（人気ページや流入元から推測される内容。80文字以内）",
-    "highlights": ["このサイトの強み・特徴を3つ（各20文字以内）"]
+    "siteType": "サイトの種類（例：企業サイト、メディア、ブログ、ECサイト、サービス紹介など）",
+    "description": "人気ページのタイトルやURLパスから推測されるサイトの内容・目的を具体的に説明（120文字以内）",
+    "targetAudience": "想定される主なターゲット層（例：IT企業の経営者、転職を考えているエンジニアなど。30文字以内）",
+    "contentFocus": "主に扱っているコンテンツや情報（人気ページから判断。40文字以内）",
+    "trafficCharacteristics": "流入元の特徴から読み取れること（例：検索流入が主力で情報発信型。40文字以内）"
   },
   "improvements": [
     {
@@ -151,7 +165,9 @@ function buildPrompt(data: AnalyticsData): string {
 }
 
 ## 重要な指示
-- siteOverviewは人気ページや流入元のデータから、このサイトが何のサイトか推測して説明する
+- siteOverviewは人気ページのタイトルやURLパス、流入元から、このサイトが何のサイトか詳しく推測する
+- ページタイトルに含まれるキーワード（例：「採用」「サービス」「ブログ」「料金」など）からサイトの目的を判断する
+- URLパス（例：/blog/, /service/, /about/など）からもサイト構造を推測する
 - improvementsは3〜5個。各提案には必ず「reason（数値を含む根拠）」と「action（具体的な作業内容）」を含める
 - 専門用語は使わないか、使う場合は括弧内で簡単に説明する（例：CTR（クリック率）、CVR（成約率））
 - actionは「〜を確認する」「〜を追加する」「〜を変更する」など、すぐ実行できる形で書く

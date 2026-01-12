@@ -35,8 +35,11 @@ interface ChangeAlert {
 }
 
 interface SiteOverview {
+  siteType: string;
   description: string;
-  highlights: string[];
+  targetAudience: string;
+  contentFocus: string;
+  trafficCharacteristics: string;
 }
 
 interface AIAnalysis {
