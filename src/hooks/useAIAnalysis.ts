@@ -88,7 +88,9 @@ export function useAIAnalysis(dateRange: string = '30days') {
     setAnalysis(null);
 
     try {
-      const response = await fetch('/api/analyze', {
+      // Use base path for API calls
+      const basePath = typeof __BASE_PATH__ !== 'undefined' ? __BASE_PATH__ : '';
+      const response = await fetch(`${basePath}/api/analyze`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
