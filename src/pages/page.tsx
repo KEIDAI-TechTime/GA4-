@@ -133,8 +133,9 @@ export default function LandingPage() {
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center">
+            <div className="flex items-center gap-3">
               <img src={`${import.meta.env.BASE_URL}logo-white.png`} alt="TechTime" className="h-7" />
+              <span className="text-white font-semibold text-lg">Analytics</span>
             </div>
             <button
               onClick={() => navigate('/login')}
@@ -576,8 +577,9 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
             <div>
-              <div className="flex items-center mb-4">
+              <div className="flex items-center gap-3 mb-4">
                 <img src={`${import.meta.env.BASE_URL}logo-white.png`} alt="TechTime" className="h-7" />
+                <span className="text-white font-semibold text-lg">Analytics</span>
               </div>
               <p className="text-slate-500 text-sm">
                 AIが導く、次のアクション。サイト分析をもっとシンプルに。
