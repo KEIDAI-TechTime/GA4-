@@ -99,82 +99,93 @@ export default function AccessTrendChart({ dateRange = '30days' }: AccessTrendCh
         </div>
       </div>
 
-      <div className="relative h-64">
-        <svg className="w-full h-full" viewBox="0 0 800 200" preserveAspectRatio="none">
-          <defs>
-            <linearGradient id="pvGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor="rgb(20, 184, 166)" stopOpacity="0.2" />
-              <stop offset="100%" stopColor="rgb(20, 184, 166)" stopOpacity="0" />
-            </linearGradient>
-            <linearGradient id="uuGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor="rgb(59, 130, 246)" stopOpacity="0.2" />
-              <stop offset="100%" stopColor="rgb(59, 130, 246)" stopOpacity="0" />
-            </linearGradient>
-          </defs>
+      <div className="relative h-64 flex">
+        {/* Y-axis labels */}
+        <div className="flex flex-col justify-between text-xs text-slate-500 pr-2 py-1" style={{ minWidth: '40px' }}>
+          <span className="text-right">{maxValue}</span>
+          <span className="text-right">{Math.round(maxValue * 0.75)}</span>
+          <span className="text-right">{Math.round(maxValue * 0.5)}</span>
+          <span className="text-right">{Math.round(maxValue * 0.25)}</span>
+          <span className="text-right">0</span>
+        </div>
 
-          {/* Grid lines */}
-          {[0, 50, 100, 150, 200].map((y) => (
-            <line
-              key={y}
-              x1="0"
-              y1={y}
-              x2="800"
-              y2={y}
-              stroke="#e2e8f0"
-              strokeWidth="1"
+        <div className="flex-1">
+          <svg className="w-full h-full" viewBox="0 0 800 200" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="pvGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stopColor="rgb(20, 184, 166)" stopOpacity="0.2" />
+                <stop offset="100%" stopColor="rgb(20, 184, 166)" stopOpacity="0" />
+              </linearGradient>
+              <linearGradient id="uuGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stopColor="rgb(59, 130, 246)" stopOpacity="0.2" />
+                <stop offset="100%" stopColor="rgb(59, 130, 246)" stopOpacity="0" />
+              </linearGradient>
+            </defs>
+
+            {/* Grid lines */}
+            {[0, 50, 100, 150, 200].map((y) => (
+              <line
+                key={y}
+                x1="0"
+                y1={y}
+                x2="800"
+                y2={y}
+                stroke="#e2e8f0"
+                strokeWidth="1"
+              />
+            ))}
+
+            {/* PV Area */}
+            <motion.path
+              d={generateAreaPath(pvValues)}
+              fill="url(#pvGradient)"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
             />
-          ))}
 
-          {/* PV Area */}
-          <motion.path
-            d={generateAreaPath(pvValues)}
-            fill="url(#pvGradient)"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-          />
+            {/* PV Line */}
+            <motion.path
+              d={generatePath(pvValues)}
+              fill="none"
+              stroke="rgb(20, 184, 166)"
+              strokeWidth="3"
+              initial={{ pathLength: 0, opacity: 0 }}
+              animate={{ pathLength: 1, opacity: 1 }}
+              transition={{ duration: 1.5, ease: 'easeInOut' }}
+            />
 
-          {/* PV Line */}
-          <motion.path
-            d={generatePath(pvValues)}
-            fill="none"
-            stroke="rgb(20, 184, 166)"
-            strokeWidth="3"
-            initial={{ pathLength: 0, opacity: 0 }}
-            animate={{ pathLength: 1, opacity: 1 }}
-            transition={{ duration: 1.5, ease: 'easeInOut' }}
-          />
+            {/* UU Area */}
+            <motion.path
+              d={generateAreaPath(uuValues)}
+              fill="url(#uuGradient)"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.8, delay: 0.4 }}
+            />
 
-          {/* UU Area */}
-          <motion.path
-            d={generateAreaPath(uuValues)}
-            fill="url(#uuGradient)"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
-          />
+            {/* UU Line */}
+            <motion.path
+              d={generatePath(uuValues)}
+              fill="none"
+              stroke="rgb(59, 130, 246)"
+              strokeWidth="3"
+              initial={{ pathLength: 0, opacity: 0 }}
+              animate={{ pathLength: 1, opacity: 1 }}
+              transition={{ duration: 1.5, ease: 'easeInOut', delay: 0.2 }}
+            />
+          </svg>
 
-          {/* UU Line */}
-          <motion.path
-            d={generatePath(uuValues)}
-            fill="none"
-            stroke="rgb(59, 130, 246)"
-            strokeWidth="3"
-            initial={{ pathLength: 0, opacity: 0 }}
-            animate={{ pathLength: 1, opacity: 1 }}
-            transition={{ duration: 1.5, ease: 'easeInOut', delay: 0.2 }}
-          />
-        </svg>
-
-        {/* X-axis labels */}
-        <div className="flex justify-between mt-2 text-xs text-slate-500">
-          {chartData.length > 0 && (
-            <>
-              <span>{chartData[0]?.date}</span>
-              <span>{chartData[Math.floor(chartData.length / 2)]?.date}</span>
-              <span>{chartData[chartData.length - 1]?.date}</span>
-            </>
-          )}
+          {/* X-axis labels */}
+          <div className="flex justify-between mt-2 text-xs text-slate-500">
+            {chartData.length > 0 && (
+              <>
+                <span>{chartData[0]?.date}</span>
+                <span>{chartData[Math.floor(chartData.length / 2)]?.date}</span>
+                <span>{chartData[chartData.length - 1]?.date}</span>
+              </>
+            )}
+          </div>
         </div>
       </div>
     </motion.div>
