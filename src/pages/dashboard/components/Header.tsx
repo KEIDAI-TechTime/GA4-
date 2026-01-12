@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../../context/AuthContext';
 
 interface HeaderProps {
   dateRange: string;
@@ -8,8 +9,18 @@ interface HeaderProps {
 
 export default function Header({ dateRange, setDateRange }: HeaderProps) {
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
   const [showDateDropdown, setShowDateDropdown] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/login');
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
+  };
 
   return (
     <header className="bg-white border-b border-slate-200 sticky top-0 z-40">
@@ -57,7 +68,7 @@ export default function Header({ dateRange, setDateRange }: HeaderProps) {
               {showUserMenu && (
                 <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-lg border border-slate-200 py-2 z-50">
                   <div className="px-4 py-3 border-b border-slate-100">
-                    <p className="text-sm font-bold text-slate-800">user@example.com</p>
+                    <p className="text-sm font-bold text-slate-800">{user?.email || 'ゲスト'}</p>
                     <p className="text-xs text-slate-500">EC・小売</p>
                   </div>
                   <button
@@ -75,7 +86,10 @@ export default function Header({ dateRange, setDateRange }: HeaderProps) {
                     <span>ヘルプ</span>
                   </button>
                   <div className="border-t border-slate-100 mt-2 pt-2">
-                    <button className="w-full px-4 py-2.5 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-3 cursor-pointer">
+                    <button
+                      onClick={handleLogout}
+                      className="w-full px-4 py-2.5 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-3 cursor-pointer"
+                    >
                       <i className="ri-logout-box-line text-red-600 w-5 h-5 flex items-center justify-center"></i>
                       <span>ログアウト</span>
                     </button>
