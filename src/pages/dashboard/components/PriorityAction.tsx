@@ -20,7 +20,7 @@ export default function PriorityAction({ dateRange = '30days' }: PriorityActionP
   // Loading state
   if (loading) {
     return (
-      <div className="bg-gradient-to-r from-teal-500 to-cyan-500 rounded-2xl shadow-lg p-8 text-white">
+      <div className="bg-gradient-to-r from-teal-500/90 to-cyan-500/90 backdrop-blur-xl rounded-2xl shadow-2xl shadow-teal-500/20 p-8 text-white border border-teal-400/30">
         <div className="flex items-start gap-4">
           <div className="w-14 h-14 flex items-center justify-center bg-white/20 rounded-xl flex-shrink-0">
             <div className="w-8 h-8 border-3 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -49,7 +49,7 @@ export default function PriorityAction({ dateRange = '30days' }: PriorityActionP
   const priorityAction = analysis.priorityAction;
 
   return (
-    <div className="bg-gradient-to-r from-teal-500 to-cyan-500 rounded-2xl shadow-lg p-8 text-white transition-opacity duration-300">
+    <div className="bg-gradient-to-r from-teal-500/90 to-cyan-500/90 backdrop-blur-xl rounded-2xl shadow-2xl shadow-teal-500/20 p-8 text-white transition-opacity duration-300 border border-teal-400/30">
       <div className="flex items-start gap-4">
         <div className="w-14 h-14 flex items-center justify-center bg-white/20 rounded-xl flex-shrink-0">
           <i className="ri-lightbulb-flash-line text-3xl"></i>
@@ -81,7 +81,7 @@ export default function PriorityAction({ dateRange = '30days' }: PriorityActionP
           <div className="flex items-center gap-3">
             <button
               onClick={handleLaterClick}
-              className="bg-white/10 text-white px-5 py-2.5 rounded-lg font-bold text-sm hover:bg-white/20 transition-colors whitespace-nowrap cursor-pointer"
+              className="bg-white/10 text-white px-5 py-2.5 rounded-lg font-bold text-sm hover:bg-white/20 transition-colors whitespace-nowrap cursor-pointer border border-white/20"
             >
               後で確認
             </button>

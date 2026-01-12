@@ -54,7 +54,8 @@ export default function SummaryCards({ dateRange = '30days' }: SummaryCardsProps
       previousValue: previousData ? formatNumber(previousData.pageViews) : null,
       change: data && previousData ? calculateChange(data.pageViews, previousData.pageViews) : null,
       icon: 'ri-eye-line',
-      color: 'from-blue-500 to-blue-600',
+      color: 'from-blue-400 to-blue-500',
+      shadowColor: 'shadow-blue-500/25',
     },
     {
       title: 'ユーザー数',
@@ -62,7 +63,8 @@ export default function SummaryCards({ dateRange = '30days' }: SummaryCardsProps
       previousValue: previousData ? formatNumber(previousData.users) : null,
       change: data && previousData ? calculateChange(data.users, previousData.users) : null,
       icon: 'ri-user-line',
-      color: 'from-teal-500 to-teal-600',
+      color: 'from-teal-400 to-teal-500',
+      shadowColor: 'shadow-teal-500/25',
     },
     {
       title: 'セッション数',
@@ -70,7 +72,8 @@ export default function SummaryCards({ dateRange = '30days' }: SummaryCardsProps
       previousValue: previousData ? formatNumber(previousData.sessions) : null,
       change: data && previousData ? calculateChange(data.sessions, previousData.sessions) : null,
       icon: 'ri-check-double-line',
-      color: 'from-purple-500 to-purple-600',
+      color: 'from-purple-400 to-purple-500',
+      shadowColor: 'shadow-purple-500/25',
     },
     {
       title: '平均滞在時間',
@@ -78,7 +81,8 @@ export default function SummaryCards({ dateRange = '30days' }: SummaryCardsProps
       previousValue: previousData ? formatDuration(previousData.avgSessionDuration) : null,
       change: data && previousData ? calculateChange(data.avgSessionDuration, previousData.avgSessionDuration) : null,
       icon: 'ri-time-line',
-      color: 'from-orange-500 to-orange-600',
+      color: 'from-orange-400 to-orange-500',
+      shadowColor: 'shadow-orange-500/25',
     },
   ];
 
@@ -88,14 +92,14 @@ export default function SummaryCards({ dateRange = '30days' }: SummaryCardsProps
         {[1, 2, 3, 4].map((i) => (
           <div
             key={i}
-            className="bg-white rounded-xl p-6 shadow-sm border border-slate-100 animate-pulse"
+            className="bg-white/5 backdrop-blur-xl rounded-xl p-6 border border-white/10 animate-pulse"
           >
             <div className="flex items-start justify-between mb-4">
-              <div className="w-12 h-12 rounded-lg bg-slate-200"></div>
-              <div className="w-12 h-4 rounded bg-slate-200"></div>
+              <div className="w-12 h-12 rounded-lg bg-white/10"></div>
+              <div className="w-12 h-4 rounded bg-white/10"></div>
             </div>
-            <div className="w-24 h-4 rounded bg-slate-200 mb-2"></div>
-            <div className="w-16 h-8 rounded bg-slate-200"></div>
+            <div className="w-24 h-4 rounded bg-white/10 mb-2"></div>
+            <div className="w-16 h-8 rounded bg-white/10"></div>
           </div>
         ))}
       </div>
@@ -104,10 +108,10 @@ export default function SummaryCards({ dateRange = '30days' }: SummaryCardsProps
 
   if (error) {
     return (
-      <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
-        <i className="ri-error-warning-line text-red-500 text-2xl mb-2"></i>
-        <p className="text-red-600">データの取得に失敗しました</p>
-        <p className="text-red-400 text-sm">{error}</p>
+      <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-6 text-center backdrop-blur-xl">
+        <i className="ri-error-warning-line text-red-400 text-2xl mb-2"></i>
+        <p className="text-red-400">データの取得に失敗しました</p>
+        <p className="text-red-500/60 text-sm">{error}</p>
       </div>
     );
   }
@@ -122,26 +126,26 @@ export default function SummaryCards({ dateRange = '30days' }: SummaryCardsProps
           animate="visible"
           transition={{ delay: index * 0.1 }}
           whileHover={{ y: -4, transition: { duration: 0.2 } }}
-          className="bg-white rounded-xl p-6 shadow-sm border border-slate-100 hover:shadow-md transition-shadow"
+          className="bg-white/5 backdrop-blur-xl rounded-xl p-6 border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all"
         >
           <div className="flex items-start justify-between mb-4">
             <div
-              className={`w-12 h-12 rounded-lg bg-gradient-to-br ${card.color} flex items-center justify-center`}
+              className={`w-12 h-12 rounded-lg bg-gradient-to-br ${card.color} flex items-center justify-center shadow-lg ${card.shadowColor}`}
             >
               <i className={`${card.icon} text-white text-xl`}></i>
             </div>
             {card.change && card.change.percent !== '-' && (
               <span
-                className={`text-sm font-bold ${card.change.isPositive ? 'text-teal-600' : 'text-red-600'}`}
+                className={`text-sm font-bold ${card.change.isPositive ? 'text-emerald-400' : 'text-red-400'}`}
               >
                 {card.change.percent}
               </span>
             )}
           </div>
-          <h3 className="text-slate-600 text-sm font-medium mb-1">{card.title}</h3>
+          <h3 className="text-slate-400 text-sm font-medium mb-1">{card.title}</h3>
           <div className="flex items-baseline gap-2">
             <motion.p
-              className="text-3xl font-bold text-slate-900"
+              className="text-3xl font-bold text-white"
               initial={{ opacity: 0, scale: 0.5 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: index * 0.1 + 0.2, duration: 0.5, ease: 'easeOut' }}
@@ -149,7 +153,7 @@ export default function SummaryCards({ dateRange = '30days' }: SummaryCardsProps
               {card.value}
             </motion.p>
             {card.previousValue && (
-              <span className="text-sm text-slate-400">
+              <span className="text-sm text-slate-500">
                 ({card.previousValue})
               </span>
             )}

@@ -24,15 +24,15 @@ export default function PageRanking({ dateRange = '30days' }: PageRankingProps) 
 
   if (loading) {
     return (
-      <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
+      <div className="bg-white/5 backdrop-blur-xl rounded-xl p-6 border border-white/10">
         <div className="flex items-center justify-between mb-5">
           <div>
-            <h2 className="text-lg font-bold text-slate-900">ページ別アクセス</h2>
-            <p className="text-sm text-slate-500">上位5ページ</p>
+            <h2 className="text-lg font-bold text-white">ページ別アクセス</h2>
+            <p className="text-sm text-slate-400">上位5ページ</p>
           </div>
         </div>
         <div className="h-64 flex items-center justify-center">
-          <div className="w-10 h-10 border-4 border-teal-500 border-t-transparent rounded-full animate-spin"></div>
+          <div className="w-10 h-10 border-4 border-teal-400 border-t-transparent rounded-full animate-spin"></div>
         </div>
       </div>
     );
@@ -40,14 +40,14 @@ export default function PageRanking({ dateRange = '30days' }: PageRankingProps) 
 
   if (error) {
     return (
-      <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
+      <div className="bg-white/5 backdrop-blur-xl rounded-xl p-6 border border-white/10">
         <div className="flex items-center justify-between mb-5">
           <div>
-            <h2 className="text-lg font-bold text-slate-900">ページ別アクセス</h2>
-            <p className="text-sm text-slate-500">上位5ページ</p>
+            <h2 className="text-lg font-bold text-white">ページ別アクセス</h2>
+            <p className="text-sm text-slate-400">上位5ページ</p>
           </div>
         </div>
-        <div className="h-64 flex items-center justify-center text-red-500">
+        <div className="h-64 flex items-center justify-center text-red-400">
           <p>データの取得に失敗しました</p>
         </div>
       </div>
@@ -56,14 +56,14 @@ export default function PageRanking({ dateRange = '30days' }: PageRankingProps) 
 
   if (pages.length === 0) {
     return (
-      <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
+      <div className="bg-white/5 backdrop-blur-xl rounded-xl p-6 border border-white/10">
         <div className="flex items-center justify-between mb-5">
           <div>
-            <h2 className="text-lg font-bold text-slate-900">ページ別アクセス</h2>
-            <p className="text-sm text-slate-500">上位5ページ</p>
+            <h2 className="text-lg font-bold text-white">ページ別アクセス</h2>
+            <p className="text-sm text-slate-400">上位5ページ</p>
           </div>
         </div>
-        <div className="h-64 flex items-center justify-center text-slate-500">
+        <div className="h-64 flex items-center justify-center text-slate-400">
           <p>データがありません</p>
         </div>
       </div>
@@ -71,15 +71,15 @@ export default function PageRanking({ dateRange = '30days' }: PageRankingProps) 
   }
 
   return (
-    <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
+    <div className="bg-white/5 backdrop-blur-xl rounded-xl p-6 border border-white/10">
       <div className="flex items-center justify-between mb-5">
         <div>
-          <h2 className="text-lg font-bold text-slate-900">ページ別アクセス</h2>
-          <p className="text-sm text-slate-500">上位5ページ</p>
+          <h2 className="text-lg font-bold text-white">ページ別アクセス</h2>
+          <p className="text-sm text-slate-400">上位5ページ</p>
         </div>
         <button
           onClick={() => setShowAllModal(true)}
-          className="text-sm text-teal-600 font-medium hover:text-teal-700 whitespace-nowrap cursor-pointer"
+          className="text-sm text-teal-400 font-medium hover:text-teal-300 whitespace-nowrap cursor-pointer"
         >
           すべて見る
         </button>
@@ -90,23 +90,23 @@ export default function PageRanking({ dateRange = '30days' }: PageRankingProps) 
           <div key={index}>
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center space-x-3 flex-1 min-w-0">
-                <span className="w-7 h-7 bg-slate-100 rounded-lg flex items-center justify-center text-sm font-bold text-slate-600 flex-shrink-0">
+                <span className="w-7 h-7 bg-white/10 rounded-lg flex items-center justify-center text-sm font-bold text-white flex-shrink-0">
                   {index + 1}
                 </span>
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium text-slate-900 truncate">{page.name}</p>
+                  <p className="text-sm font-medium text-white truncate">{page.name}</p>
                   <p className="text-xs text-slate-500 truncate">{page.path}</p>
                 </div>
               </div>
               <div className="flex items-center space-x-3 flex-shrink-0 ml-3">
-                <span className="text-sm font-bold text-slate-900 whitespace-nowrap">
+                <span className="text-sm font-bold text-white whitespace-nowrap">
                   {page.views.toLocaleString()}
                 </span>
               </div>
             </div>
-            <div className="w-full bg-slate-100 rounded-full h-2">
+            <div className="w-full bg-white/10 rounded-full h-2">
               <div
-                className="bg-gradient-to-r from-teal-500 to-cyan-600 h-2 rounded-full transition-all duration-500"
+                className="bg-gradient-to-r from-teal-400 to-cyan-500 h-2 rounded-full transition-all duration-500"
                 style={{ width: `${(page.views / maxViews) * 100}%` }}
               ></div>
             </div>
@@ -119,7 +119,7 @@ export default function PageRanking({ dateRange = '30days' }: PageRankingProps) 
         {showAllModal && (
           <>
             <motion.div
-              className="fixed inset-0 bg-black/50 z-50"
+              className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -128,23 +128,23 @@ export default function PageRanking({ dateRange = '30days' }: PageRankingProps) 
             />
             <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
               <motion.div
-                className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden flex flex-col"
+                className="bg-slate-800/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/10 max-w-2xl w-full max-h-[80vh] overflow-hidden flex flex-col"
                 initial={{ opacity: 0, scale: 0.9, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.9, y: 20 }}
                 transition={{ duration: 0.3, ease: 'easeOut' }}
                 onClick={(e) => e.stopPropagation()}
               >
-                <div className="sticky top-0 bg-white border-b border-slate-100 px-6 py-4 flex items-center justify-between">
+                <div className="sticky top-0 bg-slate-800/95 backdrop-blur-xl border-b border-white/10 px-6 py-4 flex items-center justify-between">
                   <div>
-                    <h2 className="text-xl font-bold text-slate-800">ページ別アクセス</h2>
-                    <p className="text-sm text-slate-500">全{data.length}ページ</p>
+                    <h2 className="text-xl font-bold text-white">ページ別アクセス</h2>
+                    <p className="text-sm text-slate-400">全{data.length}ページ</p>
                   </div>
                   <button
                     onClick={() => setShowAllModal(false)}
-                    className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
+                    className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/10 transition-colors cursor-pointer"
                   >
-                    <i className="ri-close-line text-xl text-slate-500"></i>
+                    <i className="ri-close-line text-xl text-slate-400"></i>
                   </button>
                 </div>
 
@@ -156,26 +156,26 @@ export default function PageRanking({ dateRange = '30days' }: PageRankingProps) 
                     const maxViewsInModal = Math.max(...data.map(p => p.pageViews), 1);
 
                     return (
-                      <div key={index} className="bg-slate-50 rounded-lg p-4">
+                      <div key={index} className="bg-white/5 rounded-lg p-4 border border-white/10">
                         <div className="flex items-center justify-between mb-2">
                           <div className="flex items-center space-x-3 flex-1 min-w-0">
-                            <span className="w-8 h-8 bg-white rounded-lg flex items-center justify-center text-sm font-bold text-slate-600 flex-shrink-0 shadow-sm">
+                            <span className="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center text-sm font-bold text-white flex-shrink-0">
                               {index + 1}
                             </span>
                             <div className="min-w-0 flex-1">
-                              <p className="text-sm font-medium text-slate-900 truncate">{pageName}</p>
+                              <p className="text-sm font-medium text-white truncate">{pageName}</p>
                               <p className="text-xs text-slate-500 truncate">{item.pagePath}</p>
                             </div>
                           </div>
                           <div className="flex items-center space-x-4 flex-shrink-0 ml-3">
-                            <span className="text-sm font-bold text-slate-900 whitespace-nowrap">
+                            <span className="text-sm font-bold text-white whitespace-nowrap">
                               {item.pageViews.toLocaleString()} PV
                             </span>
                           </div>
                         </div>
-                        <div className="w-full bg-slate-200 rounded-full h-1.5">
+                        <div className="w-full bg-white/10 rounded-full h-1.5">
                           <div
-                            className="bg-gradient-to-r from-teal-500 to-cyan-600 h-1.5 rounded-full transition-all duration-500"
+                            className="bg-gradient-to-r from-teal-400 to-cyan-500 h-1.5 rounded-full transition-all duration-500"
                             style={{ width: `${(item.pageViews / maxViewsInModal) * 100}%` }}
                           ></div>
                         </div>

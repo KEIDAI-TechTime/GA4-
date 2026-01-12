@@ -9,18 +9,18 @@ function getSourceInfo(source: string): { name: string; icon: string; color: str
   const sourceLower = source.toLowerCase();
 
   if (sourceLower.includes('google') || sourceLower.includes('yahoo') || sourceLower.includes('bing')) {
-    return { name: '検索', icon: 'ri-search-line', color: '#14b8a6' };
+    return { name: '検索', icon: 'ri-search-line', color: '#2dd4bf' };
   }
   if (sourceLower.includes('twitter') || sourceLower.includes('facebook') || sourceLower.includes('instagram') || sourceLower.includes('linkedin') || sourceLower === 'social') {
-    return { name: 'SNS', icon: 'ri-share-line', color: '#a855f7' };
+    return { name: 'SNS', icon: 'ri-share-line', color: '#c084fc' };
   }
   if (sourceLower === '(direct)' || sourceLower === 'direct') {
-    return { name: '直接', icon: 'ri-link', color: '#f59e0b' };
+    return { name: '直接', icon: 'ri-link', color: '#fbbf24' };
   }
   if (sourceLower.includes('referral') || sourceLower.includes('ref')) {
-    return { name: '参照', icon: 'ri-external-link-line', color: '#3b82f6' };
+    return { name: '参照', icon: 'ri-external-link-line', color: '#60a5fa' };
   }
-  return { name: source || 'その他', icon: 'ri-more-line', color: '#64748b' };
+  return { name: source || 'その他', icon: 'ri-more-line', color: '#94a3b8' };
 }
 
 export default function TrafficSources({ dateRange = '30days' }: TrafficSourcesProps) {
@@ -59,13 +59,13 @@ export default function TrafficSources({ dateRange = '30days' }: TrafficSourcesP
 
   if (loading) {
     return (
-      <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
+      <div className="bg-white/5 backdrop-blur-xl rounded-xl p-6 border border-white/10">
         <div className="mb-5">
-          <h2 className="text-lg font-bold text-slate-900">流入元</h2>
-          <p className="text-sm text-slate-500">トラフィックソース別</p>
+          <h2 className="text-lg font-bold text-white">流入元</h2>
+          <p className="text-sm text-slate-400">トラフィックソース別</p>
         </div>
         <div className="h-48 flex items-center justify-center">
-          <div className="w-10 h-10 border-4 border-teal-500 border-t-transparent rounded-full animate-spin"></div>
+          <div className="w-10 h-10 border-4 border-teal-400 border-t-transparent rounded-full animate-spin"></div>
         </div>
       </div>
     );
@@ -73,12 +73,12 @@ export default function TrafficSources({ dateRange = '30days' }: TrafficSourcesP
 
   if (error) {
     return (
-      <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
+      <div className="bg-white/5 backdrop-blur-xl rounded-xl p-6 border border-white/10">
         <div className="mb-5">
-          <h2 className="text-lg font-bold text-slate-900">流入元</h2>
-          <p className="text-sm text-slate-500">トラフィックソース別</p>
+          <h2 className="text-lg font-bold text-white">流入元</h2>
+          <p className="text-sm text-slate-400">トラフィックソース別</p>
         </div>
-        <div className="h-48 flex items-center justify-center text-red-500">
+        <div className="h-48 flex items-center justify-center text-red-400">
           <p>データの取得に失敗しました</p>
         </div>
       </div>
@@ -87,12 +87,12 @@ export default function TrafficSources({ dateRange = '30days' }: TrafficSourcesP
 
   if (sourcesWithPercentage.length === 0) {
     return (
-      <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
+      <div className="bg-white/5 backdrop-blur-xl rounded-xl p-6 border border-white/10">
         <div className="mb-5">
-          <h2 className="text-lg font-bold text-slate-900">流入元</h2>
-          <p className="text-sm text-slate-500">トラフィックソース別</p>
+          <h2 className="text-lg font-bold text-white">流入元</h2>
+          <p className="text-sm text-slate-400">トラフィックソース別</p>
         </div>
-        <div className="h-48 flex items-center justify-center text-slate-500">
+        <div className="h-48 flex items-center justify-center text-slate-400">
           <p>データがありません</p>
         </div>
       </div>
@@ -103,10 +103,10 @@ export default function TrafficSources({ dateRange = '30days' }: TrafficSourcesP
   let currentAngle = -90;
 
   return (
-    <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
+    <div className="bg-white/5 backdrop-blur-xl rounded-xl p-6 border border-white/10">
       <div className="mb-5">
-        <h2 className="text-lg font-bold text-slate-900">流入元</h2>
-        <p className="text-sm text-slate-500">トラフィックソース別</p>
+        <h2 className="text-lg font-bold text-white">流入元</h2>
+        <p className="text-sm text-slate-400">トラフィックソース別</p>
       </div>
 
       <div className="flex items-center justify-center mb-6">
@@ -136,12 +136,12 @@ export default function TrafficSources({ dateRange = '30days' }: TrafficSourcesP
                 />
               );
             })}
-            <circle cx="96" cy="96" r="50" fill="white" />
+            <circle cx="96" cy="96" r="50" fill="rgb(15, 23, 42)" />
           </svg>
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="text-center">
-              <p className="text-2xl font-bold text-slate-900">{total.toLocaleString()}</p>
-              <p className="text-xs text-slate-500">セッション</p>
+              <p className="text-2xl font-bold text-white">{total.toLocaleString()}</p>
+              <p className="text-xs text-slate-400">セッション</p>
             </div>
           </div>
         </div>
@@ -152,13 +152,13 @@ export default function TrafficSources({ dateRange = '30days' }: TrafficSourcesP
           <div key={index} className="flex items-center space-x-2">
             <div
               className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0"
-              style={{ backgroundColor: `${source.color}15` }}
+              style={{ backgroundColor: `${source.color}20` }}
             >
               <i className={`${source.icon} text-lg`} style={{ color: source.color }}></i>
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-sm font-medium text-slate-900">{source.name}</p>
-              <p className="text-xs text-slate-500">{source.value}%</p>
+              <p className="text-sm font-medium text-white">{source.name}</p>
+              <p className="text-xs text-slate-400">{source.value}%</p>
             </div>
           </div>
         ))}

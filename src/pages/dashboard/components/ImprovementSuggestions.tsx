@@ -10,11 +10,11 @@ export default function ImprovementSuggestions({ dateRange = '30days' }: Improve
   const getPriorityColor = (priority: 'high' | 'medium' | 'low') => {
     switch (priority) {
       case 'high':
-        return 'bg-red-100 text-red-700';
+        return 'bg-red-500/20 text-red-400';
       case 'medium':
-        return 'bg-amber-100 text-amber-700';
+        return 'bg-amber-500/20 text-amber-400';
       case 'low':
-        return 'bg-blue-100 text-blue-700';
+        return 'bg-blue-500/20 text-blue-400';
     }
   };
 
@@ -32,21 +32,21 @@ export default function ImprovementSuggestions({ dateRange = '30days' }: Improve
   // Loading state
   if (loading) {
     return (
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+      <div className="bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 p-6">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-lg font-bold text-slate-800">AIによる改善提案</h2>
-          <div className="flex items-center gap-2 text-sm text-teal-600">
-            <div className="w-4 h-4 border-2 border-teal-500 border-t-transparent rounded-full animate-spin"></div>
+          <h2 className="text-lg font-bold text-white">AIによる改善提案</h2>
+          <div className="flex items-center gap-2 text-sm text-teal-400">
+            <div className="w-4 h-4 border-2 border-teal-400 border-t-transparent rounded-full animate-spin"></div>
             <span>分析中...</span>
           </div>
         </div>
         <div className="space-y-3">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="animate-pulse flex items-center gap-4 p-4 rounded-xl bg-slate-50">
-              <div className="w-11 h-11 bg-slate-200 rounded-lg"></div>
+            <div key={i} className="animate-pulse flex items-center gap-4 p-4 rounded-xl bg-white/5">
+              <div className="w-11 h-11 bg-white/10 rounded-lg"></div>
               <div className="flex-1">
-                <div className="h-4 bg-slate-200 rounded w-1/3 mb-2"></div>
-                <div className="h-3 bg-slate-200 rounded w-2/3"></div>
+                <div className="h-4 bg-white/10 rounded w-1/3 mb-2"></div>
+                <div className="h-3 bg-white/10 rounded w-2/3"></div>
               </div>
             </div>
           ))}
@@ -58,16 +58,16 @@ export default function ImprovementSuggestions({ dateRange = '30days' }: Improve
   // Error state
   if (error) {
     return (
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+      <div className="bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 p-6">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-lg font-bold text-slate-800">AIによる改善提案</h2>
+          <h2 className="text-lg font-bold text-white">AIによる改善提案</h2>
         </div>
         <div className="text-center py-8">
           <div className="text-4xl mb-3">⚠️</div>
-          <p className="text-slate-600 text-sm mb-4">{error}</p>
+          <p className="text-slate-300 text-sm mb-4">{error}</p>
           <button
             onClick={refetch}
-            className="px-4 py-2 bg-teal-500 text-white rounded-lg text-sm hover:bg-teal-600 transition-colors"
+            className="px-4 py-2 bg-teal-500 text-white rounded-lg text-sm hover:bg-teal-600 transition-colors cursor-pointer"
           >
             再試行
           </button>
@@ -79,13 +79,13 @@ export default function ImprovementSuggestions({ dateRange = '30days' }: Improve
   // No analysis yet
   if (!analysis || !analysis.improvements) {
     return (
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+      <div className="bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 p-6">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-lg font-bold text-slate-800">AIによる改善提案</h2>
+          <h2 className="text-lg font-bold text-white">AIによる改善提案</h2>
         </div>
         <div className="text-center py-8">
           <div className="text-4xl mb-3">🤖</div>
-          <p className="text-slate-600 text-sm mb-4">データを分析中です</p>
+          <p className="text-slate-300 text-sm mb-4">データを分析中です</p>
         </div>
       </div>
     );
@@ -94,21 +94,21 @@ export default function ImprovementSuggestions({ dateRange = '30days' }: Improve
   const improvements = analysis.improvements;
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+    <div className="bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 p-6">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <h2 className="text-lg font-bold text-slate-800">AIによる改善提案</h2>
+          <h2 className="text-lg font-bold text-white">AIによる改善提案</h2>
           <span className="px-2 py-0.5 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-bold rounded-full">
             AI
           </span>
         </div>
-        <span className="text-sm text-slate-500">{improvements.length}件の提案</span>
+        <span className="text-sm text-slate-400">{improvements.length}件の提案</span>
       </div>
 
       {/* Summary */}
       {analysis.summary && (
-        <div className="mb-4 p-3 bg-slate-50 rounded-lg border border-slate-200">
-          <p className="text-sm text-slate-700">{analysis.summary}</p>
+        <div className="mb-4 p-3 bg-white/5 rounded-lg border border-white/10">
+          <p className="text-sm text-slate-300">{analysis.summary}</p>
         </div>
       )}
 
@@ -116,27 +116,27 @@ export default function ImprovementSuggestions({ dateRange = '30days' }: Improve
         {improvements.map((improvement, index) => (
           <div
             key={index}
-            className="p-4 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors"
+            className="p-4 rounded-xl bg-white/5 hover:bg-white/10 transition-colors border border-white/10"
           >
             <div className="flex items-start gap-4">
-              <div className="w-11 h-11 flex items-center justify-center bg-white rounded-lg flex-shrink-0 shadow-sm text-2xl">
+              <div className="w-11 h-11 flex items-center justify-center bg-white/10 rounded-lg flex-shrink-0 text-2xl">
                 {improvement.icon}
               </div>
 
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-2">
-                  <h3 className="font-bold text-slate-800">{improvement.title}</h3>
+                  <h3 className="font-bold text-white">{improvement.title}</h3>
                   <span className={`px-2 py-0.5 rounded-full text-xs font-bold whitespace-nowrap ${getPriorityColor(improvement.priority)}`}>
                     優先度: {getPriorityLabel(improvement.priority)}
                   </span>
                 </div>
 
-                <div className="text-sm text-slate-500 mb-2">
-                  <span className="font-medium text-slate-600">根拠: </span>
+                <div className="text-sm text-slate-400 mb-2">
+                  <span className="font-medium text-slate-300">根拠: </span>
                   {improvement.reason}
                 </div>
 
-                <div className="text-sm bg-teal-50 text-teal-800 p-2 rounded-lg border border-teal-100">
+                <div className="text-sm bg-teal-500/10 text-teal-300 p-2 rounded-lg border border-teal-500/20">
                   <span className="font-medium">やること: </span>
                   {improvement.action}
                 </div>
@@ -150,7 +150,7 @@ export default function ImprovementSuggestions({ dateRange = '30days' }: Improve
       <div className="mt-4 text-center">
         <button
           onClick={refetch}
-          className="text-sm text-teal-600 hover:text-teal-700 font-medium"
+          className="text-sm text-teal-400 hover:text-teal-300 font-medium cursor-pointer"
         >
           ↻ 再分析する
         </button>

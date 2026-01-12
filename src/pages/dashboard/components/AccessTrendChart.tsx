@@ -38,12 +38,12 @@ export default function AccessTrendChart({ dateRange = '30days' }: AccessTrendCh
 
   if (loading) {
     return (
-      <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-100">
+      <div className="bg-white/5 backdrop-blur-xl rounded-xl p-6 border border-white/10">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-lg font-bold text-slate-900">アクセス推移</h2>
+          <h2 className="text-lg font-bold text-white">アクセス推移</h2>
         </div>
         <div className="h-64 flex items-center justify-center">
-          <div className="w-10 h-10 border-4 border-teal-500 border-t-transparent rounded-full animate-spin"></div>
+          <div className="w-10 h-10 border-4 border-teal-400 border-t-transparent rounded-full animate-spin"></div>
         </div>
       </div>
     );
@@ -51,11 +51,11 @@ export default function AccessTrendChart({ dateRange = '30days' }: AccessTrendCh
 
   if (error) {
     return (
-      <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-100">
+      <div className="bg-white/5 backdrop-blur-xl rounded-xl p-6 border border-white/10">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-lg font-bold text-slate-900">アクセス推移</h2>
+          <h2 className="text-lg font-bold text-white">アクセス推移</h2>
         </div>
-        <div className="h-64 flex items-center justify-center text-red-500">
+        <div className="h-64 flex items-center justify-center text-red-400">
           <p>データの取得に失敗しました</p>
         </div>
       </div>
@@ -64,11 +64,11 @@ export default function AccessTrendChart({ dateRange = '30days' }: AccessTrendCh
 
   if (chartData.length === 0) {
     return (
-      <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-100">
+      <div className="bg-white/5 backdrop-blur-xl rounded-xl p-6 border border-white/10">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-lg font-bold text-slate-900">アクセス推移</h2>
+          <h2 className="text-lg font-bold text-white">アクセス推移</h2>
         </div>
-        <div className="h-64 flex items-center justify-center text-slate-500">
+        <div className="h-64 flex items-center justify-center text-slate-400">
           <p>データがありません</p>
         </div>
       </div>
@@ -80,21 +80,21 @@ export default function AccessTrendChart({ dateRange = '30days' }: AccessTrendCh
 
   return (
     <motion.div
-      className="bg-white rounded-xl p-6 shadow-sm border border-slate-100"
+      className="bg-white/5 backdrop-blur-xl rounded-xl p-6 border border-white/10"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
     >
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-lg font-bold text-slate-900">アクセス推移</h2>
+        <h2 className="text-lg font-bold text-white">アクセス推移</h2>
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-teal-500"></div>
-            <span className="text-sm text-slate-600">PV</span>
+            <div className="w-3 h-3 rounded-full bg-teal-400"></div>
+            <span className="text-sm text-slate-400">PV</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-blue-500"></div>
-            <span className="text-sm text-slate-600">UU</span>
+            <div className="w-3 h-3 rounded-full bg-blue-400"></div>
+            <span className="text-sm text-slate-400">UU</span>
           </div>
         </div>
       </div>
@@ -113,12 +113,12 @@ export default function AccessTrendChart({ dateRange = '30days' }: AccessTrendCh
           <svg className="w-full h-full" viewBox="0 0 800 200" preserveAspectRatio="none">
             <defs>
               <linearGradient id="pvGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" stopColor="rgb(20, 184, 166)" stopOpacity="0.2" />
-                <stop offset="100%" stopColor="rgb(20, 184, 166)" stopOpacity="0" />
+                <stop offset="0%" stopColor="rgb(45, 212, 191)" stopOpacity="0.3" />
+                <stop offset="100%" stopColor="rgb(45, 212, 191)" stopOpacity="0" />
               </linearGradient>
               <linearGradient id="uuGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" stopColor="rgb(59, 130, 246)" stopOpacity="0.2" />
-                <stop offset="100%" stopColor="rgb(59, 130, 246)" stopOpacity="0" />
+                <stop offset="0%" stopColor="rgb(96, 165, 250)" stopOpacity="0.3" />
+                <stop offset="100%" stopColor="rgb(96, 165, 250)" stopOpacity="0" />
               </linearGradient>
             </defs>
 
@@ -130,7 +130,7 @@ export default function AccessTrendChart({ dateRange = '30days' }: AccessTrendCh
                 y1={y}
                 x2="800"
                 y2={y}
-                stroke="#e2e8f0"
+                stroke="rgba(255,255,255,0.1)"
                 strokeWidth="1"
               />
             ))}
@@ -148,7 +148,7 @@ export default function AccessTrendChart({ dateRange = '30days' }: AccessTrendCh
             <motion.path
               d={generatePath(pvValues)}
               fill="none"
-              stroke="rgb(20, 184, 166)"
+              stroke="rgb(45, 212, 191)"
               strokeWidth="3"
               initial={{ pathLength: 0, opacity: 0 }}
               animate={{ pathLength: 1, opacity: 1 }}
@@ -168,7 +168,7 @@ export default function AccessTrendChart({ dateRange = '30days' }: AccessTrendCh
             <motion.path
               d={generatePath(uuValues)}
               fill="none"
-              stroke="rgb(59, 130, 246)"
+              stroke="rgb(96, 165, 250)"
               strokeWidth="3"
               initial={{ pathLength: 0, opacity: 0 }}
               animate={{ pathLength: 1, opacity: 1 }}
