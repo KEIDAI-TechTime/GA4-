@@ -2,7 +2,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import Stripe from 'stripe';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
-  apiVersion: '2024-12-18.acacia',
+  apiVersion: '2025-12-15.clover',
 });
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -64,14 +64,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const subscription = subscriptions.data[0];
     const priceId = subscription.items.data[0]?.price.id;
 
+    // Access subscription properties (handle potential type differences)
+    const subData = subscription as unknown as {
+      id: string;
+      current_period_end?: number;
+      cancel_at_period_end?: boolean;
+    };
+
     return res.status(200).json({
       hasSubscription: true,
       plan: 'pro',
       customerId: customer.id,
       subscriptionId: subscription.id,
       priceId: priceId,
-      currentPeriodEnd: subscription.current_period_end,
-      cancelAtPeriodEnd: subscription.cancel_at_period_end,
+      currentPeriodEnd: subData.current_period_end,
+      cancelAtPeriodEnd: subData.cancel_at_period_end,
     });
   } catch (error) {
     console.error('Stripe subscription check error:', error);
