@@ -136,11 +136,48 @@ function getPageName(path: string): string {
     'features': '機能',
     'support': 'サポート',
     'help': 'ヘルプ',
+    'works': '実績',
+    'portfolio': 'ポートフォリオ',
+    'case': '事例',
+    'cases': '事例',
+    'flow': 'ご利用の流れ',
+    'voice': 'お客様の声',
+    'review': 'レビュー',
+    'reviews': 'レビュー',
   };
 
   // マッピングがあれば使用
   if (pathMap[lastSegment.toLowerCase()]) {
     return pathMap[lastSegment.toLowerCase()];
+  }
+
+  // 日付形式のパターンを検出（例: 20250613-2, 2025-06-13, 20250613 など）
+  const datePattern = /^(\d{8}|\d{4}-\d{2}-\d{2})(-\d+)?$/;
+  if (datePattern.test(lastSegment)) {
+    // 日付を抽出してフォーマット
+    const dateMatch = lastSegment.match(/^(\d{4})(\d{2}|\-\d{2})(\d{2}|\-\d{2})/);
+    if (dateMatch) {
+      const year = dateMatch[1];
+      const month = dateMatch[2].replace('-', '');
+      const day = dateMatch[3].replace('-', '');
+      return `記事 (${year}/${month}/${day})`;
+    }
+    return '記事';
+  }
+
+  // 数字とハイフンのみの場合は記事として扱う
+  if (/^[\d\-]+$/.test(lastSegment)) {
+    return '記事';
+  }
+
+  // IDっぽい文字列（長い英数字）は記事として扱う
+  if (/^[a-zA-Z0-9]{10,}$/.test(lastSegment)) {
+    return '記事';
+  }
+
+  // blogやnewsの配下は記事
+  if (segments.some(s => ['blog', 'news', 'article', 'articles', 'post', 'posts'].includes(s.toLowerCase()))) {
+    return '記事: ' + lastSegment;
   }
 
   // なければパスをそのまま表示（先頭を大文字に）
