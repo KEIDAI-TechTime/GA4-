@@ -2,27 +2,32 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
+const industries = [
+  { id: 'it', name: 'IT・テクノロジー', icon: 'ri-code-s-slash-line' },
+  { id: 'retail', name: '小売・EC', icon: 'ri-shopping-cart-line' },
+  { id: 'restaurant', name: '飲食', icon: 'ri-restaurant-line' },
+  { id: 'beauty', name: '美容・サロン', icon: 'ri-scissors-line' },
+  { id: 'medical', name: '医療・ヘルスケア', icon: 'ri-hospital-line' },
+  { id: 'education', name: '教育', icon: 'ri-book-open-line' },
+  { id: 'realestate', name: '不動産', icon: 'ri-home-line' },
+  { id: 'finance', name: '金融・保険', icon: 'ri-bank-line' },
+  { id: 'manufacturing', name: '製造業', icon: 'ri-settings-3-line' },
+  { id: 'travel', name: '旅行・宿泊', icon: 'ri-plane-line' },
+  { id: 'media', name: 'メディア・ブログ', icon: 'ri-article-line' },
+  { id: 'professional', name: '士業・コンサル', icon: 'ri-briefcase-line' },
+  { id: 'other', name: 'その他', icon: 'ri-more-line' },
+];
+
 export default function Settings() {
   const navigate = useNavigate();
-  const [selectedIndustry, setSelectedIndustry] = useState('EC・小売');
+  const [selectedIndustry, setSelectedIndustry] = useState(() => {
+    return localStorage.getItem('selected_industry') || 'IT・テクノロジー';
+  });
   const [showDisconnectModal, setShowDisconnectModal] = useState(false);
   const [showSaveNotification, setShowSaveNotification] = useState(false);
 
-  const industries = [
-    { id: 'ec', name: 'EC・小売', icon: 'ri-shopping-cart-line' },
-    { id: 'restaurant', name: '飲食店', icon: 'ri-restaurant-line' },
-    { id: 'beauty', name: '美容・サロン', icon: 'ri-scissors-line' },
-    { id: 'medical', name: '医療・クリニック', icon: 'ri-hospital-line' },
-    { id: 'education', name: '教育・スクール', icon: 'ri-book-open-line' },
-    { id: 'realestate', name: '不動産', icon: 'ri-building-line' },
-    { id: 'consulting', name: 'コンサルティング', icon: 'ri-briefcase-line' },
-    { id: 'it', name: 'IT・Web制作', icon: 'ri-code-line' },
-    { id: 'manufacturing', name: '製造業', icon: 'ri-tools-line' },
-    { id: 'other', name: 'その他', icon: 'ri-more-line' }
-  ];
-
   const handleSave = () => {
-    // 保存処理
+    localStorage.setItem('selected_industry', selectedIndustry);
     setShowSaveNotification(true);
     setTimeout(() => {
       setShowSaveNotification(false);

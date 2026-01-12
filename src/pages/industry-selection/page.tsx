@@ -10,15 +10,18 @@ interface Industry {
 }
 
 const industries: Industry[] = [
+  { id: 'it', name: 'IT・テクノロジー', icon: 'ri-code-s-slash-line', description: 'ソフトウェア、SaaS、Web制作' },
   { id: 'retail', name: '小売・EC', icon: 'ri-shopping-cart-line', description: 'オンラインショップ、通販サイト' },
-  { id: 'restaurant', name: '飲食店', icon: 'ri-restaurant-line', description: 'レストラン、カフェ、居酒屋' },
+  { id: 'restaurant', name: '飲食', icon: 'ri-restaurant-line', description: 'レストラン、カフェ、居酒屋' },
   { id: 'beauty', name: '美容・サロン', icon: 'ri-scissors-line', description: 'ヘアサロン、エステ、ネイル' },
-  { id: 'medical', name: '医療・クリニック', icon: 'ri-hospital-line', description: '病院、クリニック、歯科医院' },
-  { id: 'education', name: '教育・スクール', icon: 'ri-book-open-line', description: '学習塾、語学教室、習い事' },
+  { id: 'medical', name: '医療・ヘルスケア', icon: 'ri-hospital-line', description: '病院、クリニック、薬局' },
+  { id: 'education', name: '教育', icon: 'ri-book-open-line', description: '学校、塾、オンライン講座' },
   { id: 'realestate', name: '不動産', icon: 'ri-home-line', description: '不動産売買、賃貸、管理' },
-  { id: 'corporate', name: '企業サイト', icon: 'ri-building-line', description: 'コーポレートサイト、採用サイト' },
+  { id: 'finance', name: '金融・保険', icon: 'ri-bank-line', description: '銀行、証券、保険' },
+  { id: 'manufacturing', name: '製造業', icon: 'ri-settings-3-line', description: 'メーカー、工場' },
+  { id: 'travel', name: '旅行・宿泊', icon: 'ri-plane-line', description: '旅行代理店、ホテル、観光' },
   { id: 'media', name: 'メディア・ブログ', icon: 'ri-article-line', description: '情報サイト、ブログ、ニュース' },
-  { id: 'service', name: 'サービス業', icon: 'ri-customer-service-line', description: '各種サービス業全般' },
+  { id: 'professional', name: '士業・コンサル', icon: 'ri-briefcase-line', description: '弁護士、税理士、コンサル' },
   { id: 'other', name: 'その他', icon: 'ri-more-line', description: '上記以外の業種' },
 ];
 
@@ -33,8 +36,9 @@ export default function IndustrySelection() {
 
   const handleComplete = () => {
     if (selectedIndustry) {
-      // 業種情報をlocalStorageに保存
-      localStorage.setItem('selected_industry', selectedIndustry);
+      // 業種名をlocalStorageに保存（AI分析で使用）
+      const industry = industries.find(i => i.id === selectedIndustry);
+      localStorage.setItem('selected_industry', industry?.name || 'その他');
       navigate('/dashboard');
     }
   };
