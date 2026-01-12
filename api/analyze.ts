@@ -104,6 +104,10 @@ function buildPrompt(data: AnalyticsData): string {
 以下のJSON形式で回答してください。日本語で記述してください。
 
 {
+  "siteOverview": {
+    "description": "サイトの特色・概要（人気ページや流入元から推測される内容。80文字以内）",
+    "highlights": ["このサイトの強み・特徴を3つ（各20文字以内）"]
+  },
   "improvements": [
     {
       "title": "改善提案のタイトル（15文字以内）",
@@ -147,6 +151,7 @@ function buildPrompt(data: AnalyticsData): string {
 }
 
 ## 重要な指示
+- siteOverviewは人気ページや流入元のデータから、このサイトが何のサイトか推測して説明する
 - improvementsは3〜5個。各提案には必ず「reason（数値を含む根拠）」と「action（具体的な作業内容）」を含める
 - 専門用語は使わないか、使う場合は括弧内で簡単に説明する（例：CTR（クリック率）、CVR（成約率））
 - actionは「〜を確認する」「〜を追加する」「〜を変更する」など、すぐ実行できる形で書く

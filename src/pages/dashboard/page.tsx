@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import Header from './components/Header';
+import SiteOverview from './components/SiteOverview';
 import NotificationAlert from './components/NotificationAlert';
 import PriorityAction from './components/PriorityAction';
 import SummaryCards from './components/SummaryCards';
@@ -41,18 +42,22 @@ export default function Dashboard() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-50">
       <Header dateRange={dateRange} setDateRange={setDateRange} />
       
-      <motion.main 
+      <motion.main
         className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6"
         variants={containerVariants}
         initial="hidden"
         animate="visible"
       >
         <motion.div variants={itemVariants}>
-          <NotificationAlert />
+          <SiteOverview dateRange={dateRange} />
         </motion.div>
 
         <motion.div variants={itemVariants}>
-          <PriorityAction />
+          <NotificationAlert dateRange={dateRange} />
+        </motion.div>
+
+        <motion.div variants={itemVariants}>
+          <PriorityAction dateRange={dateRange} />
         </motion.div>
 
         <motion.div variants={itemVariants}>
@@ -80,11 +85,11 @@ export default function Dashboard() {
         </motion.div>
 
         <motion.div variants={itemVariants}>
-          <BenchmarkComparison />
+          <BenchmarkComparison dateRange={dateRange} />
         </motion.div>
 
         <motion.div variants={itemVariants}>
-          <ImprovementSuggestions />
+          <ImprovementSuggestions dateRange={dateRange} />
         </motion.div>
       </motion.main>
     </div>

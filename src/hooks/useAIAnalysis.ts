@@ -34,7 +34,13 @@ interface ChangeAlert {
   message: string;
 }
 
+interface SiteOverview {
+  description: string;
+  highlights: string[];
+}
+
 interface AIAnalysis {
+  siteOverview: SiteOverview;
   improvements: Improvement[];
   industryComparison: IndustryComparison;
   priorityAction: PriorityAction;
