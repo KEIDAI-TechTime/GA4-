@@ -20,9 +20,24 @@ interface IndustryComparison {
   pagesPerSession: MetricComparison;
 }
 
+interface PriorityAction {
+  title: string;
+  description: string;
+  impact: '高' | '中' | '低';
+  effort: '高' | '中' | '低';
+}
+
+interface ChangeAlert {
+  type: 'increase' | 'decrease';
+  metric: string;
+  message: string;
+}
+
 interface AIAnalysis {
   improvements: Improvement[];
   industryComparison: IndustryComparison;
+  priorityAction: PriorityAction;
+  changeAlerts: ChangeAlert[];
   summary: string;
 }
 

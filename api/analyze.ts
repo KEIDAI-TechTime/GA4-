@@ -129,8 +129,23 @@ function buildPrompt(data: AnalyticsData): string {
       "status": "good" | "average" | "needsWork"
     }
   },
+  "priorityAction": {
+    "title": "最優先で実行すべきアクションのタイトル（20文字以内）",
+    "description": "具体的な説明と期待効果（100文字以内）",
+    "impact": "高" | "中" | "低",
+    "effort": "高" | "中" | "低"
+  },
+  "changeAlerts": [
+    {
+      "type": "increase" | "decrease",
+      "metric": "変化が検出された指標名",
+      "message": "変化の説明（50文字以内）"
+    }
+  ],
   "summary": "全体的な分析サマリー（100文字以内）"
 }
 
-業界「${data.industry}」の最新のベンチマークデータを参考に、具体的で実行可能な提案を3〜5個提供してください。`;
+業界「${data.industry}」の最新のベンチマークデータを参考に、具体的で実行可能な提案を3〜5個提供してください。
+changeAlertsには、データから読み取れる注目すべき変化や特徴を1〜2個含めてください（例：モバイル比率が高い、直帰率が業界平均より高いなど）。
+priorityActionには、最も効果が高く実行しやすい改善アクションを1つ選んでください。`;
 }
