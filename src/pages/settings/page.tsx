@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../context/AuthContext';
 import { useSubscription } from '../../hooks/useSubscription';
@@ -23,11 +23,31 @@ const industries = [
 
 export default function Settings() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { user, logout } = useAuth();
   const { subscription, isPro, createCheckout, openPortal, loading: subscriptionLoading } = useSubscription();
   const [showDisconnectModal, setShowDisconnectModal] = useState(false);
   const [showSaveNotification, setShowSaveNotification] = useState(false);
   const [isUpgrading, setIsUpgrading] = useState(false);
+
+  // Auto-trigger checkout if redirected from landing page with Pro intent
+  useEffect(() => {
+    const checkoutPlan = searchParams.get('checkout');
+    if (checkoutPlan === 'pro' && !isPro && !subscriptionLoading) {
+      // Clear the query param
+      setSearchParams({});
+      // Trigger checkout directly
+      setIsUpgrading(true);
+      createCheckout(STRIPE_CONFIG.proPriceId)
+        .catch((error) => {
+          console.error('Auto checkout error:', error);
+          alert('アップグレードに失敗しました。もう一度お試しください。');
+        })
+        .finally(() => {
+          setIsUpgrading(false);
+        });
+    }
+  }, [searchParams, isPro, subscriptionLoading, createCheckout, setSearchParams]);
 
   // 実データを取得
   const propertyId = localStorage.getItem('selected_property') || '未設定';

@@ -6,6 +6,12 @@ export default function LandingPage() {
   const navigate = useNavigate();
   const [activePlan, setActivePlan] = useState<'free' | 'pro'>('free');
 
+  const handleStartPro = () => {
+    // Store intent to purchase Pro plan - will redirect to Stripe after login
+    localStorage.setItem('pending_plan', 'pro');
+    navigate('/login');
+  };
+
   const features = [
     {
       icon: 'ri-robot-2-line',
@@ -524,7 +530,7 @@ export default function LandingPage() {
                 </li>
               </ul>
               <button
-                onClick={() => navigate('/login')}
+                onClick={handleStartPro}
                 className="w-full bg-white text-teal-600 px-6 py-3 rounded-xl font-bold hover:shadow-lg transition-all whitespace-nowrap cursor-pointer"
               >
                 Proで始める

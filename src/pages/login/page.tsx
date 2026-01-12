@@ -21,7 +21,16 @@ export default function Login() {
     setError(null);
     try {
       await signInWithGoogle();
-      navigate('/property-selection');
+
+      // Check if user intended to purchase Pro plan
+      const pendingPlan = localStorage.getItem('pending_plan');
+      if (pendingPlan === 'pro') {
+        localStorage.removeItem('pending_plan');
+        // Redirect to settings with checkout trigger
+        navigate('/settings?checkout=pro');
+      } else {
+        navigate('/property-selection');
+      }
     } catch (err) {
       console.error('Login error:', err);
       setError('ログインに失敗しました。もう一度お試しください。');
