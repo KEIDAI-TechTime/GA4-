@@ -3,7 +3,8 @@ import { useSelectedProperty, useBasicMetrics, useTopPages, useTrafficSources, u
 
 interface Improvement {
   title: string;
-  description: string;
+  reason: string;
+  action: string;
   priority: 'high' | 'medium' | 'low';
   icon: string;
 }

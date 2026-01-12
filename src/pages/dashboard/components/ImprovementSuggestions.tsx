@@ -116,20 +116,31 @@ export default function ImprovementSuggestions({ dateRange = '30days' }: Improve
         {improvements.map((improvement, index) => (
           <div
             key={index}
-            className="flex items-center gap-4 p-4 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors"
+            className="p-4 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors"
           >
-            <div className="w-11 h-11 flex items-center justify-center bg-white rounded-lg flex-shrink-0 shadow-sm text-2xl">
-              {improvement.icon}
-            </div>
-
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-1">
-                <h3 className="font-bold text-slate-800 text-sm">{improvement.title}</h3>
-                <span className={`px-2 py-0.5 rounded-full text-xs font-bold whitespace-nowrap ${getPriorityColor(improvement.priority)}`}>
-                  優先度: {getPriorityLabel(improvement.priority)}
-                </span>
+            <div className="flex items-start gap-4">
+              <div className="w-11 h-11 flex items-center justify-center bg-white rounded-lg flex-shrink-0 shadow-sm text-2xl">
+                {improvement.icon}
               </div>
-              <p className="text-sm text-slate-600">{improvement.description}</p>
+
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-2">
+                  <h3 className="font-bold text-slate-800">{improvement.title}</h3>
+                  <span className={`px-2 py-0.5 rounded-full text-xs font-bold whitespace-nowrap ${getPriorityColor(improvement.priority)}`}>
+                    優先度: {getPriorityLabel(improvement.priority)}
+                  </span>
+                </div>
+
+                <div className="text-sm text-slate-500 mb-2">
+                  <span className="font-medium text-slate-600">根拠: </span>
+                  {improvement.reason}
+                </div>
+
+                <div className="text-sm bg-teal-50 text-teal-800 p-2 rounded-lg border border-teal-100">
+                  <span className="font-medium">やること: </span>
+                  {improvement.action}
+                </div>
+              </div>
             </div>
           </div>
         ))}

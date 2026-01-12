@@ -107,7 +107,8 @@ function buildPrompt(data: AnalyticsData): string {
   "improvements": [
     {
       "title": "改善提案のタイトル（15文字以内）",
-      "description": "具体的な改善内容（50文字以内）",
+      "reason": "データに基づく根拠（例：直帰率が65%で業界平均より15%高い）",
+      "action": "具体的にやるべきこと（例：トップページに人気記事3つへのリンクを追加する）",
       "priority": "high" | "medium" | "low",
       "icon": "📈" | "📱" | "🔍" | "⚡" | "🎯" | "💡"
     }
@@ -145,7 +146,11 @@ function buildPrompt(data: AnalyticsData): string {
   "summary": "全体的な分析サマリー（100文字以内）"
 }
 
-業界「${data.industry}」の最新のベンチマークデータを参考に、具体的で実行可能な提案を3〜5個提供してください。
-changeAlertsには、データから読み取れる注目すべき変化や特徴を1〜2個含めてください（例：モバイル比率が高い、直帰率が業界平均より高いなど）。
-priorityActionには、最も効果が高く実行しやすい改善アクションを1つ選んでください。`;
+## 重要な指示
+- improvementsは3〜5個。各提案には必ず「reason（数値を含む根拠）」と「action（具体的な作業内容）」を含める
+- 専門用語は使わないか、使う場合は括弧内で簡単に説明する（例：CTR（クリック率）、CVR（成約率））
+- actionは「〜を確認する」「〜を追加する」「〜を変更する」など、すぐ実行できる形で書く
+- changeAlertsには、データから読み取れる注目すべき特徴を1〜2個含める
+- priorityActionには、最も効果が高く実行しやすい改善アクションを1つ選ぶ
+- 業界「${data.industry}」のベンチマークデータを参考にする`;
 }
