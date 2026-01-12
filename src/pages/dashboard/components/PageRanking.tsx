@@ -8,9 +8,11 @@ export default function PageRanking({ dateRange = '30days' }: PageRankingProps) 
   const { propertyId } = useSelectedProperty();
   const { data, loading, error } = useTopPages(propertyId, dateRange);
 
-  // データを整形
+  // データを整形（ページタイトルがあればそれを使用、なければパスから推測）
   const pages = data.slice(0, 5).map(item => ({
-    name: getPageName(item.pagePath),
+    name: item.pageTitle && item.pageTitle.trim() !== ''
+      ? cleanPageTitle(item.pageTitle)
+      : getPageName(item.pagePath),
     path: item.pagePath,
     views: item.pageViews,
   }));
@@ -182,4 +184,29 @@ function getPageName(path: string): string {
 
   // なければパスをそのまま表示（先頭を大文字に）
   return lastSegment.charAt(0).toUpperCase() + lastSegment.slice(1);
+}
+
+// ページタイトルをクリーンアップ（サイト名の重複除去など）
+function cleanPageTitle(title: string): string {
+  // よくあるセパレータでサイト名を除去
+  const separators = [' | ', ' - ', ' – ', ' — ', ' :: ', ' : '];
+  for (const sep of separators) {
+    if (title.includes(sep)) {
+      const parts = title.split(sep);
+      // 最初の部分がページタイトル、最後がサイト名のことが多い
+      if (parts.length >= 2) {
+        const firstPart = parts[0].trim();
+        // 最初の部分が短すぎる場合は次の部分も含める
+        if (firstPart.length < 5 && parts.length > 2) {
+          return parts.slice(0, 2).join(sep).trim();
+        }
+        return firstPart;
+      }
+    }
+  }
+  // 長すぎるタイトルは切り詰め
+  if (title.length > 40) {
+    return title.substring(0, 37) + '...';
+  }
+  return title;
 }

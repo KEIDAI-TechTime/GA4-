@@ -177,20 +177,42 @@ export async function getTopPages(
   startDate: string,
   endDate: string,
   limit: number = 10
-): Promise<{ pagePath: string; pageViews: number; avgTime: number }[]> {
+): Promise<{ pagePath: string; pageTitle: string; pageViews: number; avgTime: number }[]> {
   const report = await runGA4Report({
     propertyId,
     startDate,
     endDate,
     metrics: ['screenPageViews', 'averageSessionDuration'],
-    dimensions: ['pagePath'],
+    dimensions: ['pagePath', 'pageTitle'],
   });
 
-  return (report.rows || [])
-    .map((row) => ({
-      pagePath: row.dimensionValues?.[0]?.value || '',
-      pageViews: parseInt(row.metricValues[0]?.value || '0', 10),
-      avgTime: parseFloat(row.metricValues[1]?.value || '0'),
+  // パスごとにPVを集計（同じパスで異なるタイトルがある場合があるため）
+  const pageMap = new Map<string, { pageTitle: string; pageViews: number; avgTime: number }>();
+
+  for (const row of report.rows || []) {
+    const pagePath = row.dimensionValues?.[0]?.value || '';
+    const pageTitle = row.dimensionValues?.[1]?.value || '';
+    const pageViews = parseInt(row.metricValues[0]?.value || '0', 10);
+    const avgTime = parseFloat(row.metricValues[1]?.value || '0');
+
+    const existing = pageMap.get(pagePath);
+    if (existing) {
+      existing.pageViews += pageViews;
+      // より長いタイトルを優先（空でないタイトルを使う）
+      if (pageTitle && pageTitle.length > existing.pageTitle.length) {
+        existing.pageTitle = pageTitle;
+      }
+    } else {
+      pageMap.set(pagePath, { pageTitle, pageViews, avgTime });
+    }
+  }
+
+  return Array.from(pageMap.entries())
+    .map(([pagePath, data]) => ({
+      pagePath,
+      pageTitle: data.pageTitle,
+      pageViews: data.pageViews,
+      avgTime: data.avgTime,
     }))
     .sort((a, b) => b.pageViews - a.pageViews)
     .slice(0, limit);

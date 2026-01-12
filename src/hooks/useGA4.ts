@@ -154,7 +154,7 @@ export function usePageViewsByDate(propertyId: string | null, dateRange: string 
 
 // Fetch top pages
 export function useTopPages(propertyId: string | null, dateRange: string = '30days') {
-  const [data, setData] = useState<{ pagePath: string; pageViews: number; avgTime: number }[]>([]);
+  const [data, setData] = useState<{ pagePath: string; pageTitle: string; pageViews: number; avgTime: number }[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
