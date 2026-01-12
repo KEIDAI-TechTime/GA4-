@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../context/AuthContext';
+import { useSubscription } from '../../hooks/useSubscription';
+import { PLANS, STRIPE_CONFIG } from '../../config/stripe';
 
 const industries = [
   { id: 'it', name: 'IT・テクノロジー', icon: 'ri-code-s-slash-line' },
@@ -22,8 +24,10 @@ const industries = [
 export default function Settings() {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
+  const { subscription, isPro, createCheckout, openPortal, loading: subscriptionLoading } = useSubscription();
   const [showDisconnectModal, setShowDisconnectModal] = useState(false);
   const [showSaveNotification, setShowSaveNotification] = useState(false);
+  const [isUpgrading, setIsUpgrading] = useState(false);
 
   // 実データを取得
   const propertyId = localStorage.getItem('selected_property') || '未設定';
@@ -67,6 +71,27 @@ export default function Settings() {
       console.error('Logout error:', e);
     }
     navigate('/login');
+  };
+
+  const handleUpgrade = async () => {
+    try {
+      setIsUpgrading(true);
+      await createCheckout(STRIPE_CONFIG.proPriceId);
+    } catch (error) {
+      console.error('Upgrade error:', error);
+      alert('アップグレードに失敗しました。もう一度お試しください。');
+    } finally {
+      setIsUpgrading(false);
+    }
+  };
+
+  const handleManageSubscription = async () => {
+    try {
+      await openPortal();
+    } catch (error) {
+      console.error('Portal error:', error);
+      alert('サブスクリプション管理ページを開けませんでした。');
+    }
   };
 
   // ユーザー情報
@@ -224,7 +249,7 @@ export default function Settings() {
         </motion.div>
 
         {/* アカウント情報 */}
-        <motion.div 
+        <motion.div
           className="bg-white rounded-xl p-6 shadow-sm border border-slate-100"
           whileHover={{ y: -2 }}
           transition={{ duration: 0.2 }}
@@ -243,6 +268,129 @@ export default function Settings() {
               <p className="text-sm text-slate-600">登録日: {createdAt}</p>
             </div>
           </div>
+        </motion.div>
+
+        {/* プラン・サブスクリプション */}
+        <motion.div
+          className="bg-white rounded-xl p-6 shadow-sm border border-slate-100"
+          whileHover={{ y: -2 }}
+          transition={{ duration: 0.2 }}
+        >
+          <h2 className="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
+            <i className="ri-vip-crown-line text-teal-600"></i>
+            プラン
+          </h2>
+
+          {subscriptionLoading ? (
+            <div className="animate-pulse space-y-4">
+              <div className="h-20 bg-slate-100 rounded-xl"></div>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {/* 現在のプラン */}
+              <div className={`p-4 rounded-xl border-2 ${isPro ? 'border-teal-500 bg-teal-50' : 'border-slate-200 bg-slate-50'}`}>
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-3">
+                    <div className={`w-12 h-12 flex items-center justify-center rounded-lg ${isPro ? 'bg-teal-100' : 'bg-slate-200'}`}>
+                      <i className={`${isPro ? 'ri-vip-crown-fill text-teal-600' : 'ri-user-line text-slate-600'} text-2xl`}></i>
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-slate-800">
+                        {isPro ? PLANS.pro.name : PLANS.free.name}
+                      </h3>
+                      <p className="text-sm text-slate-600">
+                        {isPro ? PLANS.pro.priceLabel : PLANS.free.priceLabel}
+                      </p>
+                    </div>
+                  </div>
+                  <span className={`px-3 py-1 rounded-full text-xs font-bold ${isPro ? 'bg-teal-500 text-white' : 'bg-slate-200 text-slate-600'}`}>
+                    {isPro ? '利用中' : '現在のプラン'}
+                  </span>
+                </div>
+
+                {/* プランの機能一覧 */}
+                <ul className="space-y-2 mt-4">
+                  {(isPro ? PLANS.pro.features : PLANS.free.features).map((feature, index) => (
+                    <li key={index} className="flex items-center gap-2 text-sm text-slate-600">
+                      <i className="ri-check-line text-teal-500"></i>
+                      {feature}
+                    </li>
+                  ))}
+                </ul>
+
+                {/* サブスクリプション期間 */}
+                {isPro && subscription?.currentPeriodEnd && (
+                  <div className="mt-4 pt-4 border-t border-slate-200">
+                    <p className="text-sm text-slate-600">
+                      次回請求日: {new Date(subscription.currentPeriodEnd * 1000).toLocaleDateString('ja-JP')}
+                    </p>
+                    {subscription.cancelAtPeriodEnd && (
+                      <p className="text-sm text-orange-600 mt-1">
+                        ※ 期間終了後にキャンセルされます
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* アップグレード/管理ボタン */}
+              {isPro ? (
+                <button
+                  onClick={handleManageSubscription}
+                  className="w-full py-3 bg-slate-100 text-slate-700 rounded-lg font-bold text-sm hover:bg-slate-200 transition-colors cursor-pointer"
+                >
+                  <i className="ri-settings-3-line mr-2"></i>
+                  サブスクリプションを管理
+                </button>
+              ) : (
+                <div className="space-y-3">
+                  {/* Pro プランの紹介 */}
+                  <div className="p-4 bg-gradient-to-r from-teal-500 to-cyan-500 rounded-xl text-white">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-10 h-10 flex items-center justify-center bg-white/20 rounded-lg">
+                        <i className="ri-vip-crown-fill text-xl"></i>
+                      </div>
+                      <div>
+                        <h4 className="font-bold">{PLANS.pro.name}</h4>
+                        <p className="text-sm opacity-90">{PLANS.pro.priceLabel}</p>
+                      </div>
+                    </div>
+                    <ul className="space-y-1 text-sm opacity-90 mb-4">
+                      <li className="flex items-center gap-2">
+                        <i className="ri-check-line"></i>
+                        AI分析が無制限
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <i className="ri-check-line"></i>
+                        PDF/Excelエクスポート
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <i className="ri-check-line"></i>
+                        メール通知・週次レポート
+                      </li>
+                    </ul>
+                    <button
+                      onClick={handleUpgrade}
+                      disabled={isUpgrading}
+                      className="w-full py-3 bg-white text-teal-600 rounded-lg font-bold text-sm hover:bg-white/90 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {isUpgrading ? (
+                        <span className="flex items-center justify-center gap-2">
+                          <div className="w-4 h-4 border-2 border-teal-600 border-t-transparent rounded-full animate-spin"></div>
+                          処理中...
+                        </span>
+                      ) : (
+                        <>
+                          <i className="ri-arrow-up-line mr-2"></i>
+                          Proにアップグレード
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </motion.div>
 
         {/* 保存ボタン */}
