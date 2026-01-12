@@ -33,15 +33,22 @@ export function getIndustryName(id: string): string {
 export default function IndustrySelection() {
   const navigate = useNavigate();
   const [selectedIndustry, setSelectedIndustry] = useState<string>('');
+  const [customIndustry, setCustomIndustry] = useState<string>('');
 
   const handleComplete = () => {
     if (selectedIndustry) {
       // 業種名をlocalStorageに保存（AI分析で使用）
-      const industry = industries.find(i => i.id === selectedIndustry);
-      localStorage.setItem('selected_industry', industry?.name || 'その他');
+      if (selectedIndustry === 'other' && customIndustry.trim()) {
+        localStorage.setItem('selected_industry', customIndustry.trim());
+      } else {
+        const industry = industries.find(i => i.id === selectedIndustry);
+        localStorage.setItem('selected_industry', industry?.name || 'その他');
+      }
       navigate('/dashboard');
     }
   };
+
+  const isCompleteDisabled = !selectedIndustry || (selectedIndustry === 'other' && !customIndustry.trim());
 
   return (
     <motion.div 
@@ -112,15 +119,36 @@ export default function IndustrySelection() {
             ))}
           </div>
 
+          {/* その他選択時の自由入力欄 */}
+          {selectedIndustry === 'other' && (
+            <motion.div
+              className="mt-4"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              transition={{ duration: 0.3 }}
+            >
+              <label className="block text-sm font-medium text-slate-700 mb-2">
+                業種・サイトの種類を入力してください
+              </label>
+              <input
+                type="text"
+                value={customIndustry}
+                onChange={(e) => setCustomIndustry(e.target.value)}
+                placeholder="例: 人材紹介、ペットショップ、スポーツジム"
+                className="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:border-teal-500 focus:outline-none transition-colors"
+              />
+            </motion.div>
+          )}
+
           <motion.button
             onClick={handleComplete}
-            disabled={!selectedIndustry}
+            disabled={isCompleteDisabled}
             className="w-full mt-6 bg-teal-600 text-white px-6 py-4 rounded-xl font-bold text-base hover:bg-teal-700 transition-colors whitespace-nowrap cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 1 }}
-            whileHover={{ scale: selectedIndustry ? 1.02 : 1 }}
-            whileTap={{ scale: selectedIndustry ? 0.98 : 1 }}
+            whileHover={{ scale: !isCompleteDisabled ? 1.02 : 1 }}
+            whileTap={{ scale: !isCompleteDisabled ? 0.98 : 1 }}
           >
             完了
           </motion.button>

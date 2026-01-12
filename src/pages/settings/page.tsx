@@ -20,14 +20,26 @@ const industries = [
 
 export default function Settings() {
   const navigate = useNavigate();
-  const [selectedIndustry, setSelectedIndustry] = useState(() => {
-    return localStorage.getItem('selected_industry') || 'IT・テクノロジー';
-  });
   const [showDisconnectModal, setShowDisconnectModal] = useState(false);
   const [showSaveNotification, setShowSaveNotification] = useState(false);
 
+  // 保存されている業種を取得し、既定リストにあるか確認
+  const savedIndustry = localStorage.getItem('selected_industry') || 'IT・テクノロジー';
+  const isCustomIndustry = !industries.some(i => i.name === savedIndustry);
+
+  const [selectedIndustry, setSelectedIndustry] = useState(() => {
+    return isCustomIndustry ? 'その他' : savedIndustry;
+  });
+  const [customIndustry, setCustomIndustry] = useState(() => {
+    return isCustomIndustry ? savedIndustry : '';
+  });
+
   const handleSave = () => {
-    localStorage.setItem('selected_industry', selectedIndustry);
+    if (selectedIndustry === 'その他' && customIndustry.trim()) {
+      localStorage.setItem('selected_industry', customIndustry.trim());
+    } else {
+      localStorage.setItem('selected_industry', selectedIndustry);
+    }
     setShowSaveNotification(true);
     setTimeout(() => {
       setShowSaveNotification(false);
@@ -168,6 +180,22 @@ export default function Settings() {
               </button>
             ))}
           </div>
+
+          {/* その他選択時の自由入力欄 */}
+          {selectedIndustry === 'その他' && (
+            <div className="mt-4">
+              <label className="block text-sm font-medium text-slate-700 mb-2">
+                業種・サイトの種類を入力してください
+              </label>
+              <input
+                type="text"
+                value={customIndustry}
+                onChange={(e) => setCustomIndustry(e.target.value)}
+                placeholder="例: 人材紹介、ペットショップ、スポーツジム"
+                className="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:border-teal-500 focus:outline-none transition-colors"
+              />
+            </div>
+          )}
         </motion.div>
 
         {/* アカウント情報 */}
