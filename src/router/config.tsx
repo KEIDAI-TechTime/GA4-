@@ -10,6 +10,9 @@ const PropertySelection = lazy(() => import('../pages/property-selection/page'))
 const IndustrySelection = lazy(() => import('../pages/industry-selection/page'));
 const Dashboard = lazy(() => import('../pages/dashboard/page'));
 const Settings = lazy(() => import('../pages/settings/page'));
+const Terms = lazy(() => import('../pages/legal/terms'));
+const Privacy = lazy(() => import('../pages/legal/privacy'));
+const Tokushoho = lazy(() => import('../pages/legal/tokushoho'));
 
 const routes: RouteObject[] = [
   {
@@ -51,6 +54,18 @@ const routes: RouteObject[] = [
         <Settings />
       </ProtectedRoute>
     ),
+  },
+  {
+    path: '/terms',
+    element: <Terms />,
+  },
+  {
+    path: '/privacy',
+    element: <Privacy />,
+  },
+  {
+    path: '/tokushoho',
+    element: <Tokushoho />,
   },
   {
     path: '*',

@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useState } from 'react';
 
 export default function LandingPage() {
@@ -608,12 +608,11 @@ export default function LandingPage() {
               </ul>
             </div>
             <div>
-              <h4 className="font-bold mb-4 text-slate-300">会社情報</h4>
+              <h4 className="font-bold mb-4 text-slate-300">法的情報</h4>
               <ul className="space-y-2 text-slate-500 text-sm">
-                <li><a href="#" className="hover:text-white transition-colors cursor-pointer">会社概要</a></li>
-                <li><a href="#" className="hover:text-white transition-colors cursor-pointer">プライバシーポリシー</a></li>
-                <li><a href="#" className="hover:text-white transition-colors cursor-pointer">利用規約</a></li>
-                <li><a href="#" className="hover:text-white transition-colors cursor-pointer">特定商取引法</a></li>
+                <li><Link to="/privacy" className="hover:text-white transition-colors cursor-pointer">プライバシーポリシー</Link></li>
+                <li><Link to="/terms" className="hover:text-white transition-colors cursor-pointer">利用規約</Link></li>
+                <li><Link to="/tokushoho" className="hover:text-white transition-colors cursor-pointer">特定商取引法</Link></li>
               </ul>
             </div>
           </div>

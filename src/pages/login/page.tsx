@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '../../context/AuthContext';
 
@@ -123,9 +123,9 @@ export default function Login() {
           >
             <p className="text-sm text-slate-500 text-center">
               ログインすることで、
-              <a href="#" className="text-teal-600 hover:underline">利用規約</a>
+              <Link to="/terms" className="text-teal-600 hover:underline">利用規約</Link>
               と
-              <a href="#" className="text-teal-600 hover:underline">プライバシーポリシー</a>
+              <Link to="/privacy" className="text-teal-600 hover:underline">プライバシーポリシー</Link>
               に同意したものとみなされます。
             </p>
           </motion.div>
