@@ -12,7 +12,14 @@ export default function Login() {
   // 既にログイン済みならリダイレクト
   useEffect(() => {
     if (user) {
-      navigate('/property-selection');
+      // Check if user intended to purchase Pro plan
+      const pendingPlan = localStorage.getItem('pending_plan');
+      if (pendingPlan === 'pro') {
+        localStorage.removeItem('pending_plan');
+        navigate('/settings?checkout=pro');
+      } else {
+        navigate('/property-selection');
+      }
     }
   }, [user, navigate]);
 
