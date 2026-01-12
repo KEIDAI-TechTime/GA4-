@@ -133,8 +133,11 @@ export default function LandingPage() {
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <img src="/logo-white.png" alt="TechTime" className="h-8" />
+            <div className="flex items-center space-x-2">
+              <div className="w-8 h-8 bg-gradient-to-br from-cyan-400 to-blue-500 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-sm">TT</span>
+              </div>
+              <span className="text-xl font-bold text-white">TechTime</span>
             </div>
             <button
               onClick={() => navigate('/login')}
@@ -576,8 +579,11 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
             <div>
-              <div className="flex items-center space-x-3 mb-4">
-                <img src="/logo-white.png" alt="TechTime" className="h-8" />
+              <div className="flex items-center space-x-2 mb-4">
+                <div className="w-8 h-8 bg-gradient-to-br from-cyan-400 to-blue-500 rounded-lg flex items-center justify-center">
+                  <span className="text-white font-bold text-sm">TT</span>
+                </div>
+                <span className="text-xl font-bold text-white">TechTime</span>
               </div>
               <p className="text-slate-500 text-sm">
                 AIが導く、次のアクション。サイト分析をもっとシンプルに。
