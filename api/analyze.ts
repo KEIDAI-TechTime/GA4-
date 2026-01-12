@@ -33,47 +33,133 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(500).json({ error: 'ANTHROPIC_API_KEY is not configured' });
   }
 
+  // Check if streaming is requested
+  const useStreaming = req.headers.accept === 'text/event-stream';
+
   try {
     const data: AnalyticsData = req.body;
-
     const prompt = buildPrompt(data);
 
-    const response = await fetch(ANTHROPIC_API_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 2048,
-        messages: [
-          {
-            role: 'user',
-            content: prompt,
-          },
-        ],
-      }),
-    });
+    if (useStreaming) {
+      // Streaming response
+      res.setHeader('Content-Type', 'text/event-stream');
+      res.setHeader('Cache-Control', 'no-cache');
+      res.setHeader('Connection', 'keep-alive');
 
-    if (!response.ok) {
-      const error = await response.json();
-      console.error('Anthropic API error:', error);
-      return res.status(500).json({ error: 'Failed to get AI analysis' });
+      const response = await fetch(ANTHROPIC_API_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01',
+        },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 2048,
+          stream: true,
+          messages: [
+            {
+              role: 'user',
+              content: prompt,
+            },
+          ],
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        console.error('Anthropic API error:', error);
+        res.write(`data: ${JSON.stringify({ error: 'Failed to get AI analysis' })}\n\n`);
+        return res.end();
+      }
+
+      const reader = response.body?.getReader();
+      if (!reader) {
+        res.write(`data: ${JSON.stringify({ error: 'No response body' })}\n\n`);
+        return res.end();
+      }
+
+      const decoder = new TextDecoder();
+      let fullContent = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value);
+        const lines = chunk.split('\n');
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            const data = line.slice(6);
+            if (data === '[DONE]') continue;
+
+            try {
+              const parsed = JSON.parse(data);
+              if (parsed.type === 'content_block_delta') {
+                const text = parsed.delta?.text || '';
+                fullContent += text;
+                // Send the text chunk to client
+                res.write(`data: ${JSON.stringify({ type: 'chunk', text })}\n\n`);
+              }
+            } catch {
+              // Ignore parse errors for incomplete JSON
+            }
+          }
+        }
+      }
+
+      // Parse final JSON and send complete analysis
+      const jsonMatch = fullContent.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        try {
+          const analysis = JSON.parse(jsonMatch[0]);
+          res.write(`data: ${JSON.stringify({ type: 'complete', analysis })}\n\n`);
+        } catch {
+          res.write(`data: ${JSON.stringify({ type: 'error', error: 'Failed to parse response' })}\n\n`);
+        }
+      }
+
+      res.write('data: [DONE]\n\n');
+      return res.end();
+    } else {
+      // Non-streaming response (backward compatible)
+      const response = await fetch(ANTHROPIC_API_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01',
+        },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 2048,
+          messages: [
+            {
+              role: 'user',
+              content: prompt,
+            },
+          ],
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        console.error('Anthropic API error:', error);
+        return res.status(500).json({ error: 'Failed to get AI analysis' });
+      }
+
+      const result = await response.json();
+      const content = result.content[0]?.text || '';
+
+      const jsonMatch = content.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) {
+        return res.status(500).json({ error: 'Failed to parse AI response' });
+      }
+
+      const analysis = JSON.parse(jsonMatch[0]);
+      return res.status(200).json(analysis);
     }
-
-    const result = await response.json();
-    const content = result.content[0]?.text || '';
-
-    // Parse the JSON response from Claude
-    const jsonMatch = content.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) {
-      return res.status(500).json({ error: 'Failed to parse AI response' });
-    }
-
-    const analysis = JSON.parse(jsonMatch[0]);
-    return res.status(200).json(analysis);
   } catch (error) {
     console.error('Error in analyze API:', error);
     return res.status(500).json({ error: 'Internal server error' });

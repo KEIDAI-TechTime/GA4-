@@ -7,7 +7,7 @@ interface PriorityActionProps {
 
 export default function PriorityAction({ dateRange = '30days' }: PriorityActionProps) {
   const [isVisible, setIsVisible] = useState(true);
-  const { analysis, loading } = useAIAnalysis(dateRange);
+  const { analysis, loading, isStreaming, streamingText } = useAIAnalysis(dateRange);
 
   const handleLaterClick = () => {
     setIsVisible(false);
@@ -17,8 +17,41 @@ export default function PriorityAction({ dateRange = '30days' }: PriorityActionP
     return null;
   }
 
-  // Loading state
-  if (loading) {
+  // Streaming state - show streaming text
+  if (isStreaming) {
+    return (
+      <div className="bg-gradient-to-r from-teal-500/90 to-cyan-500/90 backdrop-blur-xl rounded-2xl shadow-2xl shadow-teal-500/20 p-8 text-white border border-teal-400/30">
+        <div className="flex items-start gap-4">
+          <div className="w-14 h-14 flex items-center justify-center bg-white/20 rounded-xl flex-shrink-0">
+            <div className="w-8 h-8 border-3 border-white border-t-transparent rounded-full animate-spin"></div>
+          </div>
+          <div className="flex-1">
+            <div className="flex items-center gap-2 mb-2">
+              <h2 className="text-2xl font-bold">今やるべきこと</h2>
+              <span className="bg-white/20 px-3 py-1 rounded-full text-xs font-bold">AI分析中...</span>
+            </div>
+            <div className="min-h-[80px]">
+              {streamingText ? (
+                <div className="text-white/90 text-sm font-mono whitespace-pre-wrap overflow-hidden">
+                  <span className="opacity-70">{streamingText.slice(-500)}</span>
+                  <span className="inline-block w-2 h-4 bg-white/80 animate-pulse ml-1"></span>
+                </div>
+              ) : (
+                <div className="animate-pulse">
+                  <div className="h-6 bg-white/20 rounded w-2/3 mb-3"></div>
+                  <div className="h-4 bg-white/20 rounded w-full mb-2"></div>
+                  <div className="h-4 bg-white/20 rounded w-3/4"></div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Loading state (non-streaming fallback)
+  if (loading && !isStreaming) {
     return (
       <div className="bg-gradient-to-r from-teal-500/90 to-cyan-500/90 backdrop-blur-xl rounded-2xl shadow-2xl shadow-teal-500/20 p-8 text-white border border-teal-400/30">
         <div className="flex items-start gap-4">

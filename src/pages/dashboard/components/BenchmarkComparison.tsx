@@ -5,7 +5,7 @@ interface BenchmarkComparisonProps {
 }
 
 export default function BenchmarkComparison({ dateRange = '30days' }: BenchmarkComparisonProps) {
-  const { analysis, loading, error } = useAIAnalysis(dateRange);
+  const { analysis, loading, error, isStreaming, streamingText } = useAIAnalysis(dateRange);
 
   // Get industry from localStorage
   const industry = typeof window !== 'undefined'
@@ -39,8 +39,38 @@ export default function BenchmarkComparison({ dateRange = '30days' }: BenchmarkC
     return `${mins}分${secs}秒`;
   };
 
-  // Loading state
-  if (loading) {
+  // Streaming state - show streaming text
+  if (isStreaming) {
+    return (
+      <div className="bg-white/5 backdrop-blur-xl rounded-xl p-6 border border-white/10">
+        <div className="mb-5">
+          <div className="flex items-center gap-2">
+            <h2 className="text-lg font-bold text-white">競合との比較</h2>
+            <span className="px-2 py-0.5 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-bold rounded-full">
+              AI
+            </span>
+            <div className="flex items-center gap-2 text-sm text-teal-400 ml-2">
+              <div className="w-3 h-3 border-2 border-teal-400 border-t-transparent rounded-full animate-spin"></div>
+              <span>分析中</span>
+            </div>
+          </div>
+          <p className="text-sm text-slate-400">業種別ベンチマーク（{industry}）</p>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="animate-pulse border border-white/10 rounded-lg p-4 bg-white/5">
+              <div className="h-4 bg-white/10 rounded w-1/2 mb-3"></div>
+              <div className="h-8 bg-white/10 rounded w-2/3 mb-2"></div>
+              <div className="h-3 bg-white/10 rounded w-3/4"></div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // Loading state (non-streaming fallback)
+  if (loading && !isStreaming) {
     return (
       <div className="bg-white/5 backdrop-blur-xl rounded-xl p-6 border border-white/10">
         <div className="mb-5">

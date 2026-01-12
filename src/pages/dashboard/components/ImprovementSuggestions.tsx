@@ -5,7 +5,7 @@ interface ImprovementSuggestionsProps {
 }
 
 export default function ImprovementSuggestions({ dateRange = '30days' }: ImprovementSuggestionsProps) {
-  const { analysis, loading, error, refetch } = useAIAnalysis(dateRange);
+  const { analysis, loading, error, refetch, isStreaming, streamingText } = useAIAnalysis(dateRange);
 
   const getPriorityColor = (priority: 'high' | 'medium' | 'low') => {
     switch (priority) {
@@ -29,8 +29,48 @@ export default function ImprovementSuggestions({ dateRange = '30days' }: Improve
     }
   };
 
-  // Loading state
-  if (loading) {
+  // Streaming state - show streaming text
+  if (isStreaming) {
+    return (
+      <div className="bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 p-6">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-2">
+            <h2 className="text-lg font-bold text-white">AIによる改善提案</h2>
+            <span className="px-2 py-0.5 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-bold rounded-full">
+              AI
+            </span>
+          </div>
+          <div className="flex items-center gap-2 text-sm text-teal-400">
+            <div className="w-4 h-4 border-2 border-teal-400 border-t-transparent rounded-full animate-spin"></div>
+            <span>AI分析中...</span>
+          </div>
+        </div>
+        <div className="min-h-[200px] p-4 bg-white/5 rounded-xl border border-white/10">
+          {streamingText ? (
+            <div className="text-slate-300 text-sm font-mono whitespace-pre-wrap overflow-hidden leading-relaxed">
+              <span className="opacity-80">{streamingText.slice(-800)}</span>
+              <span className="inline-block w-2 h-4 bg-teal-400 animate-pulse ml-1"></span>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="animate-pulse flex items-center gap-4 p-4 rounded-xl bg-white/5">
+                  <div className="w-11 h-11 bg-white/10 rounded-lg"></div>
+                  <div className="flex-1">
+                    <div className="h-4 bg-white/10 rounded w-1/3 mb-2"></div>
+                    <div className="h-3 bg-white/10 rounded w-2/3"></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // Loading state (non-streaming fallback)
+  if (loading && !isStreaming) {
     return (
       <div className="bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 p-6">
         <div className="flex items-center justify-between mb-6">
