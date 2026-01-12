@@ -171,6 +171,29 @@ export async function getPageViewsByDate(
   }));
 }
 
+// タイトルが日本語/英語かどうかを判定（韓国語は除外）
+function isValidJapaneseOrEnglishTitle(title: string): boolean {
+  if (!title || title.trim() === '') return false;
+
+  // ハングル文字の範囲をチェック（韓国語）
+  const hasKorean = /[\uAC00-\uD7AF\u1100-\u11FF\u3130-\u318F]/.test(title);
+  if (hasKorean) return false;
+
+  // 日本語（ひらがな、カタカナ）があれば有効
+  const hasJapanese = /[\u3040-\u309F\u30A0-\u30FF]/.test(title);
+  if (hasJapanese) return true;
+
+  // 英字があれば有効
+  const hasEnglish = /[a-zA-Z]/.test(title);
+  if (hasEnglish) return true;
+
+  // 漢字があれば有効（日本語サイトでは一般的）
+  const hasKanji = /[\u4E00-\u9FFF]/.test(title);
+  if (hasKanji) return true;
+
+  return false;
+}
+
 // Helper: Get top pages
 export async function getTopPages(
   propertyId: string,
@@ -198,8 +221,15 @@ export async function getTopPages(
     const existing = pageMap.get(pagePath);
     if (existing) {
       existing.pageViews += pageViews;
-      // より長いタイトルを優先（空でないタイトルを使う）
-      if (pageTitle && pageTitle.length > existing.pageTitle.length) {
+      // 日本語/英語のタイトルを優先
+      const existingIsValid = isValidJapaneseOrEnglishTitle(existing.pageTitle);
+      const newIsValid = isValidJapaneseOrEnglishTitle(pageTitle);
+
+      if (newIsValid && !existingIsValid) {
+        // 新しいタイトルが有効で、既存が無効なら置き換え
+        existing.pageTitle = pageTitle;
+      } else if (newIsValid && existingIsValid && pageTitle.length > existing.pageTitle.length) {
+        // 両方有効なら、より長いタイトルを優先
         existing.pageTitle = pageTitle;
       }
     } else {
