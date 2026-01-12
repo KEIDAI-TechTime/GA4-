@@ -10,7 +10,7 @@ export default function PageRanking({ dateRange = '30days' }: PageRankingProps) 
 
   // データを整形（ページタイトルがあればそれを使用、なければパスから推測）
   const pages = data.slice(0, 5).map(item => ({
-    name: item.pageTitle && item.pageTitle.trim() !== ''
+    name: item.pageTitle && item.pageTitle.trim() !== '' && isValidTitle(item.pageTitle)
       ? cleanPageTitle(item.pageTitle)
       : getPageName(item.pagePath),
     path: item.pagePath,
@@ -209,4 +209,31 @@ function cleanPageTitle(title: string): string {
     return title.substring(0, 37) + '...';
   }
   return title;
+}
+
+// タイトルが有効か（日本語/英語のみ）を検証
+// 韓国語（ハングル）や中国語のみのタイトルは除外
+function isValidTitle(title: string): boolean {
+  if (!title || title.trim() === '') return false;
+
+  // ハングル文字の範囲をチェック（韓国語）
+  const hasKorean = /[\uAC00-\uD7AF\u1100-\u11FF\u3130-\u318F]/.test(title);
+  if (hasKorean) return false;
+
+  // タイトルに日本語（ひらがな、カタカナ、漢字）または英字が含まれているか
+  const hasJapanese = /[\u3040-\u309F\u30A0-\u30FF]/.test(title); // ひらがな・カタカナ
+  const hasKanji = /[\u4E00-\u9FFF]/.test(title); // 漢字（日中共通）
+  const hasEnglish = /[a-zA-Z]/.test(title);
+
+  // 日本語（ひらがな/カタカナ）があれば有効
+  if (hasJapanese) return true;
+
+  // 英語があれば有効
+  if (hasEnglish) return true;
+
+  // 漢字のみの場合は許可（日本語サイトでは一般的）
+  if (hasKanji) return true;
+
+  // 数字や記号のみの場合は無効
+  return false;
 }
