@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
+import { getIndustryName } from '../../industry-selection/page';
 
 interface HeaderProps {
   dateRange: string;
@@ -12,6 +13,14 @@ export default function Header({ dateRange, setDateRange }: HeaderProps) {
   const { user, logout } = useAuth();
   const [showDateDropdown, setShowDateDropdown] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [industryName, setIndustryName] = useState<string>('');
+
+  useEffect(() => {
+    const industryId = localStorage.getItem('selected_industry');
+    if (industryId) {
+      setIndustryName(getIndustryName(industryId));
+    }
+  }, []);
 
   const handleLogout = async () => {
     try {
@@ -69,7 +78,7 @@ export default function Header({ dateRange, setDateRange }: HeaderProps) {
                 <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-lg border border-slate-200 py-2 z-50">
                   <div className="px-4 py-3 border-b border-slate-100">
                     <p className="text-sm font-bold text-slate-800">{user?.email || 'ゲスト'}</p>
-                    <p className="text-xs text-slate-500">EC・小売</p>
+                    <p className="text-xs text-slate-500">{industryName || '業種未設定'}</p>
                   </div>
                   <button
                     onClick={() => {

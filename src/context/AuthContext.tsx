@@ -53,6 +53,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = async () => {
     localStorage.removeItem('google_access_token');
     localStorage.removeItem('selected_property');
+    localStorage.removeItem('selected_industry');
     await signOut(auth);
   };
 

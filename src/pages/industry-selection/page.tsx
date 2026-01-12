@@ -9,26 +9,33 @@ interface Industry {
   description: string;
 }
 
-export default function IndustrySelection() {
-  const [selectedIndustry, setSelectedIndustry] = useState<string>('');
+const industries: Industry[] = [
+  { id: 'retail', name: '小売・EC', icon: 'ri-shopping-cart-line', description: 'オンラインショップ、通販サイト' },
+  { id: 'restaurant', name: '飲食店', icon: 'ri-restaurant-line', description: 'レストラン、カフェ、居酒屋' },
+  { id: 'beauty', name: '美容・サロン', icon: 'ri-scissors-line', description: 'ヘアサロン、エステ、ネイル' },
+  { id: 'medical', name: '医療・クリニック', icon: 'ri-hospital-line', description: '病院、クリニック、歯科医院' },
+  { id: 'education', name: '教育・スクール', icon: 'ri-book-open-line', description: '学習塾、語学教室、習い事' },
+  { id: 'realestate', name: '不動産', icon: 'ri-home-line', description: '不動産売買、賃貸、管理' },
+  { id: 'corporate', name: '企業サイト', icon: 'ri-building-line', description: 'コーポレートサイト、採用サイト' },
+  { id: 'media', name: 'メディア・ブログ', icon: 'ri-article-line', description: '情報サイト、ブログ、ニュース' },
+  { id: 'service', name: 'サービス業', icon: 'ri-customer-service-line', description: '各種サービス業全般' },
+  { id: 'other', name: 'その他', icon: 'ri-more-line', description: '上記以外の業種' },
+];
 
-  const industries: Industry[] = [
-    { id: 'retail', name: '小売・EC', icon: 'ri-shopping-cart-line', description: 'オンラインショップ、通販サイト' },
-    { id: 'restaurant', name: '飲食店', icon: 'ri-restaurant-line', description: 'レストラン、カフェ、居酒屋' },
-    { id: 'beauty', name: '美容・サロン', icon: 'ri-scissors-line', description: 'ヘアサロン、エステ、ネイル' },
-    { id: 'medical', name: '医療・クリニック', icon: 'ri-hospital-line', description: '病院、クリニック、歯科医院' },
-    { id: 'education', name: '教育・スクール', icon: 'ri-book-open-line', description: '学習塾、語学教室、習い事' },
-    { id: 'realestate', name: '不動産', icon: 'ri-home-line', description: '不動産売買、賃貸、管理' },
-    { id: 'corporate', name: '企業サイト', icon: 'ri-building-line', description: 'コーポレートサイト、採用サイト' },
-    { id: 'media', name: 'メディア・ブログ', icon: 'ri-article-line', description: '情報サイト、ブログ、ニュース' },
-    { id: 'service', name: 'サービス業', icon: 'ri-customer-service-line', description: '各種サービス業全般' },
-    { id: 'other', name: 'その他', icon: 'ri-more-line', description: '上記以外の業種' },
-  ];
+export function getIndustryName(id: string): string {
+  const industry = industries.find(i => i.id === id);
+  return industry?.name || 'その他';
+}
+
+export default function IndustrySelection() {
+  const navigate = useNavigate();
+  const [selectedIndustry, setSelectedIndustry] = useState<string>('');
 
   const handleComplete = () => {
     if (selectedIndustry) {
-      // 業種情報を保存してダッシュボードへ
-      window.REACT_APP_NAVIGATE('/dashboard');
+      // 業種情報をlocalStorageに保存
+      localStorage.setItem('selected_industry', selectedIndustry);
+      navigate('/dashboard');
     }
   };
 
