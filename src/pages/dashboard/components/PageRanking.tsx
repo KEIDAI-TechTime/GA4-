@@ -1,3 +1,5 @@
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useTopPages, useSelectedProperty } from '../../../hooks/useGA4';
 
 interface PageRankingProps {
@@ -7,6 +9,7 @@ interface PageRankingProps {
 export default function PageRanking({ dateRange = '30days' }: PageRankingProps) {
   const { propertyId } = useSelectedProperty();
   const { data, loading, error } = useTopPages(propertyId, dateRange);
+  const [showAllModal, setShowAllModal] = useState(false);
 
   // データを整形（ページタイトルがあればそれを使用、なければパスから推測）
   const pages = data.slice(0, 5).map(item => ({
@@ -74,7 +77,10 @@ export default function PageRanking({ dateRange = '30days' }: PageRankingProps) 
           <h2 className="text-lg font-bold text-slate-900">ページ別アクセス</h2>
           <p className="text-sm text-slate-500">上位5ページ</p>
         </div>
-        <button className="text-sm text-teal-600 font-medium hover:text-teal-700 whitespace-nowrap">
+        <button
+          onClick={() => setShowAllModal(true)}
+          className="text-sm text-teal-600 font-medium hover:text-teal-700 whitespace-nowrap cursor-pointer"
+        >
           すべて見る
         </button>
       </div>
@@ -107,6 +113,81 @@ export default function PageRanking({ dateRange = '30days' }: PageRankingProps) 
           </div>
         ))}
       </div>
+
+      {/* すべて見るモーダル */}
+      <AnimatePresence>
+        {showAllModal && (
+          <>
+            <motion.div
+              className="fixed inset-0 bg-black/50 z-50"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              onClick={() => setShowAllModal(false)}
+            />
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+              <motion.div
+                className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden flex flex-col"
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                transition={{ duration: 0.3, ease: 'easeOut' }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="sticky top-0 bg-white border-b border-slate-100 px-6 py-4 flex items-center justify-between">
+                  <div>
+                    <h2 className="text-xl font-bold text-slate-800">ページ別アクセス</h2>
+                    <p className="text-sm text-slate-500">全{data.length}ページ</p>
+                  </div>
+                  <button
+                    onClick={() => setShowAllModal(false)}
+                    className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
+                  >
+                    <i className="ri-close-line text-xl text-slate-500"></i>
+                  </button>
+                </div>
+
+                <div className="overflow-y-auto p-6 space-y-3">
+                  {data.map((item, index) => {
+                    const pageName = item.pageTitle && item.pageTitle.trim() !== '' && isValidTitle(item.pageTitle)
+                      ? cleanPageTitle(item.pageTitle)
+                      : getPageName(item.pagePath);
+                    const maxViewsInModal = Math.max(...data.map(p => p.pageViews), 1);
+
+                    return (
+                      <div key={index} className="bg-slate-50 rounded-lg p-4">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center space-x-3 flex-1 min-w-0">
+                            <span className="w-8 h-8 bg-white rounded-lg flex items-center justify-center text-sm font-bold text-slate-600 flex-shrink-0 shadow-sm">
+                              {index + 1}
+                            </span>
+                            <div className="min-w-0 flex-1">
+                              <p className="text-sm font-medium text-slate-900 truncate">{pageName}</p>
+                              <p className="text-xs text-slate-500 truncate">{item.pagePath}</p>
+                            </div>
+                          </div>
+                          <div className="flex items-center space-x-4 flex-shrink-0 ml-3">
+                            <span className="text-sm font-bold text-slate-900 whitespace-nowrap">
+                              {item.pageViews.toLocaleString()} PV
+                            </span>
+                          </div>
+                        </div>
+                        <div className="w-full bg-slate-200 rounded-full h-1.5">
+                          <div
+                            className="bg-gradient-to-r from-teal-500 to-cyan-600 h-1.5 rounded-full transition-all duration-500"
+                            style={{ width: `${(item.pageViews / maxViewsInModal) * 100}%` }}
+                          ></div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </motion.div>
+            </div>
+          </>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

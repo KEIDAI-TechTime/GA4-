@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useTopSearchKeywords, useSearchConsoleSites } from '../../../hooks/useSearchConsole';
 
 export default function KeywordRanking() {
   const { sites, loading: sitesLoading } = useSearchConsoleSites();
   const [siteUrl, setSiteUrl] = useState<string | null>(null);
+  const [showAllModal, setShowAllModal] = useState(false);
 
   // Auto-select site based on stored preference or first available
   useEffect(() => {
@@ -96,7 +98,10 @@ export default function KeywordRanking() {
           <h2 className="text-lg font-bold text-slate-900">検索キーワード</h2>
           <p className="text-sm text-slate-500">上位5キーワード</p>
         </div>
-        <button className="text-sm text-teal-600 font-medium hover:text-teal-700 whitespace-nowrap">
+        <button
+          onClick={() => setShowAllModal(true)}
+          className="text-sm text-teal-600 font-medium hover:text-teal-700 whitespace-nowrap cursor-pointer"
+        >
           すべて見る
         </button>
       </div>
@@ -135,6 +140,84 @@ export default function KeywordRanking() {
           </div>
         ))}
       </div>
+
+      {/* すべて見るモーダル */}
+      <AnimatePresence>
+        {showAllModal && (
+          <>
+            <motion.div
+              className="fixed inset-0 bg-black/50 z-50"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              onClick={() => setShowAllModal(false)}
+            />
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+              <motion.div
+                className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden flex flex-col"
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                transition={{ duration: 0.3, ease: 'easeOut' }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="sticky top-0 bg-white border-b border-slate-100 px-6 py-4 flex items-center justify-between">
+                  <div>
+                    <h2 className="text-xl font-bold text-slate-800">検索キーワード</h2>
+                    <p className="text-sm text-slate-500">全{data.length}キーワード</p>
+                  </div>
+                  <button
+                    onClick={() => setShowAllModal(false)}
+                    className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
+                  >
+                    <i className="ri-close-line text-xl text-slate-500"></i>
+                  </button>
+                </div>
+
+                <div className="overflow-y-auto p-6">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b border-slate-200">
+                        <th className="text-left text-xs font-medium text-slate-500 pb-3">#</th>
+                        <th className="text-left text-xs font-medium text-slate-500 pb-3">キーワード</th>
+                        <th className="text-right text-xs font-medium text-slate-500 pb-3">クリック</th>
+                        <th className="text-right text-xs font-medium text-slate-500 pb-3">表示回数</th>
+                        <th className="text-right text-xs font-medium text-slate-500 pb-3">CTR</th>
+                        <th className="text-right text-xs font-medium text-slate-500 pb-3">変化</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {data.map((item, index) => (
+                        <tr key={index} className="border-b border-slate-100 last:border-0">
+                          <td className="py-3 text-sm text-slate-500">{index + 1}</td>
+                          <td className="py-3">
+                            <span className="text-sm font-medium text-slate-900">{item.keyword}</span>
+                          </td>
+                          <td className="py-3 text-right text-sm text-slate-700">{item.clicks}</td>
+                          <td className="py-3 text-right text-sm text-slate-700">{item.impressions.toLocaleString()}</td>
+                          <td className="py-3 text-right text-sm text-slate-700">{item.ctr.toFixed(1)}%</td>
+                          <td className="py-3 text-right">
+                            {item.change !== 0 && (
+                              <span
+                                className={`text-xs font-bold ${
+                                  item.change > 0 ? 'text-green-600' : 'text-red-600'
+                                }`}
+                              >
+                                {item.change > 0 ? '+' : ''}{item.change}%
+                              </span>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </motion.div>
+            </div>
+          </>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useAuth } from '../../context/AuthContext';
 
 const industries = [
   { id: 'it', name: 'IT・テクノロジー', icon: 'ri-code-s-slash-line' },
@@ -20,8 +21,13 @@ const industries = [
 
 export default function Settings() {
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
   const [showDisconnectModal, setShowDisconnectModal] = useState(false);
   const [showSaveNotification, setShowSaveNotification] = useState(false);
+
+  // 実データを取得
+  const propertyId = localStorage.getItem('selected_property') || '未設定';
+  const siteUrl = localStorage.getItem('search_console_site') || '未連携';
 
   // 保存されている業種を取得し、既定リストにあるか確認
   const savedIndustry = localStorage.getItem('selected_industry') || 'IT・テクノロジー';
@@ -50,10 +56,25 @@ export default function Settings() {
     navigate('/dashboard');
   };
 
-  const handleDisconnect = () => {
-    // 連携解除処理
+  const handleDisconnect = async () => {
+    // 連携解除: すべてのローカルデータをクリアしてログアウト
+    localStorage.removeItem('selected_property');
+    localStorage.removeItem('selected_industry');
+    localStorage.removeItem('search_console_site');
+    try {
+      await logout();
+    } catch (e) {
+      console.error('Logout error:', e);
+    }
     navigate('/login');
   };
+
+  // ユーザー情報
+  const userEmail = user?.email || 'ゲスト';
+  const userInitial = userEmail.charAt(0).toUpperCase();
+  const createdAt = user?.metadata?.creationTime
+    ? new Date(user.metadata.creationTime).toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric' })
+    : '不明';
 
   return (
     <motion.div 
@@ -105,11 +126,13 @@ export default function Settings() {
                 </div>
                 <div>
                   <h3 className="font-bold text-slate-800 text-sm">Google Analytics 4</h3>
-                  <p className="text-sm text-slate-600">example-property-123456</p>
+                  <p className="text-sm text-slate-600 font-mono">{propertyId}</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold">連携中</span>
+                <span className={`px-3 py-1 rounded-full text-xs font-bold ${propertyId !== '未設定' ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-500'}`}>
+                  {propertyId !== '未設定' ? '連携中' : '未連携'}
+                </span>
               </div>
             </div>
 
@@ -121,11 +144,13 @@ export default function Settings() {
                 </div>
                 <div>
                   <h3 className="font-bold text-slate-800 text-sm">Google Search Console</h3>
-                  <p className="text-sm text-slate-600">https://example.com</p>
+                  <p className="text-sm text-slate-600">{siteUrl}</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold">連携中</span>
+                <span className={`px-3 py-1 rounded-full text-xs font-bold ${siteUrl !== '未連携' ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-500'}`}>
+                  {siteUrl !== '未連携' ? '連携中' : '未連携'}
+                </span>
               </div>
             </div>
           </div>
@@ -211,11 +236,11 @@ export default function Settings() {
 
           <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-xl">
             <div className="w-14 h-14 flex items-center justify-center bg-gradient-to-br from-teal-500 to-cyan-500 rounded-full text-white font-bold text-xl">
-              U
+              {userInitial}
             </div>
             <div>
-              <h3 className="font-bold text-slate-800">user@example.com</h3>
-              <p className="text-sm text-slate-600">登録日: 2024年1月15日</p>
+              <h3 className="font-bold text-slate-800">{userEmail}</h3>
+              <p className="text-sm text-slate-600">登録日: {createdAt}</p>
             </div>
           </div>
         </motion.div>
