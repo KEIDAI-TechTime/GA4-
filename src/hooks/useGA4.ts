@@ -6,6 +6,7 @@ import {
   getTopPages,
   getTrafficSources,
   getDeviceBreakdown,
+  isAuthError,
   type GA4Property,
 } from '../api/ga4';
 
@@ -33,26 +34,31 @@ export function useGA4Properties() {
   const [properties, setProperties] = useState<GA4Property[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isAuthenticationError, setIsAuthenticationError] = useState(false);
 
-  useEffect(() => {
-    async function fetchProperties() {
-      try {
-        setLoading(true);
-        const data = await listGA4Properties();
-        setProperties(data);
-        setError(null);
-      } catch (err) {
-        console.error('Failed to fetch properties:', err);
-        setError(err instanceof Error ? err.message : 'Failed to fetch properties');
-      } finally {
-        setLoading(false);
+  const refetch = useCallback(async () => {
+    try {
+      setLoading(true);
+      setIsAuthenticationError(false);
+      const data = await listGA4Properties();
+      setProperties(data);
+      setError(null);
+    } catch (err) {
+      console.error('Failed to fetch properties:', err);
+      if (isAuthError(err)) {
+        setIsAuthenticationError(true);
       }
+      setError(err instanceof Error ? err.message : 'Failed to fetch properties');
+    } finally {
+      setLoading(false);
     }
-
-    fetchProperties();
   }, []);
 
-  return { properties, loading, error };
+  useEffect(() => {
+    refetch();
+  }, [refetch]);
+
+  return { properties, loading, error, isAuthenticationError, refetch };
 }
 
 // Date range helper

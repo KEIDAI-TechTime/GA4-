@@ -3,6 +3,19 @@
 
 const GA4_API_BASE = 'https://analyticsdata.googleapis.com/v1beta';
 
+// Custom error class for authentication errors
+export class AuthenticationError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'AuthenticationError';
+  }
+}
+
+// Check if error is authentication-related
+export function isAuthError(error: unknown): error is AuthenticationError {
+  return error instanceof AuthenticationError;
+}
+
 export interface GA4Property {
   name: string;
   propertyId: string;
@@ -59,6 +72,9 @@ export async function listGA4Properties(): Promise<GA4Property[]> {
   );
 
   if (!response.ok) {
+    if (response.status === 401 || response.status === 403) {
+      throw new AuthenticationError('セッションの有効期限が切れました。再度ログインしてください。');
+    }
     throw new Error(`Failed to list properties: ${response.statusText}`);
   }
 
@@ -107,6 +123,9 @@ export async function runGA4Report(request: GA4ReportRequest): Promise<GA4Report
   );
 
   if (!response.ok) {
+    if (response.status === 401 || response.status === 403) {
+      throw new AuthenticationError('セッションの有効期限が切れました。再度ログインしてください。');
+    }
     const error = await response.json();
     throw new Error(error.error?.message || `Failed to run report: ${response.statusText}`);
   }

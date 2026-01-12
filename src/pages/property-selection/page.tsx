@@ -2,12 +2,28 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useGA4Properties, useSelectedProperty } from '../../hooks/useGA4';
+import { useAuth } from '../../context/AuthContext';
 
 export default function PropertySelection() {
   const navigate = useNavigate();
-  const { properties, loading, error } = useGA4Properties();
+  const { properties, loading, error, isAuthenticationError, refetch } = useGA4Properties();
   const { selectProperty } = useSelectedProperty();
+  const { reAuthenticate } = useAuth();
   const [selectedGA4, setSelectedGA4] = useState<string>('');
+  const [isReconnecting, setIsReconnecting] = useState(false);
+
+  const handleReconnect = async () => {
+    try {
+      setIsReconnecting(true);
+      await reAuthenticate();
+      // After successful re-auth, refetch properties
+      await refetch();
+    } catch (err) {
+      console.error('Failed to reconnect:', err);
+    } finally {
+      setIsReconnecting(false);
+    }
+  };
 
   const handleContinue = () => {
     if (selectedGA4) {
@@ -52,13 +68,51 @@ export default function PropertySelection() {
             </div>
           )}
 
-          {error && (
+          {error && isAuthenticationError && (
+            <div className="text-center py-8">
+              <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i className="ri-refresh-line text-amber-600 text-2xl"></i>
+              </div>
+              <p className="text-slate-800 font-medium mb-2">Googleアカウントの再接続が必要です</p>
+              <p className="text-slate-500 text-sm mb-6">
+                セキュリティのため、定期的にGoogleアカウントへの接続を更新する必要があります
+              </p>
+              <motion.button
+                onClick={handleReconnect}
+                disabled={isReconnecting}
+                className="inline-flex items-center gap-2 bg-teal-600 text-white px-6 py-3 rounded-xl font-medium hover:bg-teal-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                whileHover={{ scale: isReconnecting ? 1 : 1.02 }}
+                whileTap={{ scale: isReconnecting ? 1 : 0.98 }}
+              >
+                {isReconnecting ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    接続中...
+                  </>
+                ) : (
+                  <>
+                    <i className="ri-google-fill"></i>
+                    Googleアカウントに再接続
+                  </>
+                )}
+              </motion.button>
+            </div>
+          )}
+
+          {error && !isAuthenticationError && (
             <div className="text-center py-8">
               <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <i className="ri-error-warning-line text-red-500 text-2xl"></i>
               </div>
               <p className="text-red-600 mb-2">プロパティの取得に失敗しました</p>
-              <p className="text-slate-500 text-sm">{error}</p>
+              <p className="text-slate-500 text-sm mb-4">{error}</p>
+              <button
+                onClick={() => refetch()}
+                className="text-teal-600 hover:text-teal-700 font-medium"
+              >
+                <i className="ri-refresh-line mr-1"></i>
+                再試行
+              </button>
             </div>
           )}
 

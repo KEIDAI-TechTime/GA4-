@@ -14,6 +14,7 @@ interface AuthContextType {
   accessToken: string | null;
   signInWithGoogle: () => Promise<UserCredential>;
   logout: () => Promise<void>;
+  reAuthenticate: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -57,8 +58,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await signOut(auth);
   };
 
+  // Re-authenticate to refresh Google OAuth token
+  const reAuthenticate = async () => {
+    try {
+      // Clear old token
+      localStorage.removeItem('google_access_token');
+      // Sign in again to get fresh token
+      await signInWithGoogle();
+    } catch (error) {
+      console.error('Re-authentication failed:', error);
+      throw error;
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading, accessToken, signInWithGoogle, logout }}>
+    <AuthContext.Provider value={{ user, loading, accessToken, signInWithGoogle, logout, reAuthenticate }}>
       {children}
     </AuthContext.Provider>
   );
