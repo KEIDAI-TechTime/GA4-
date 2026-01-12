@@ -2,6 +2,7 @@ import { lazy } from 'react';
 import type { RouteObject } from 'react-router-dom';
 import ProtectedRoute from '../components/ProtectedRoute';
 
+const LandingPage = lazy(() => import('../pages/page'));
 const Home = lazy(() => import('../pages/home/page'));
 const NotFound = lazy(() => import('../pages/NotFound'));
 const Login = lazy(() => import('../pages/login/page'));
@@ -13,7 +14,7 @@ const Settings = lazy(() => import('../pages/settings/page'));
 const routes: RouteObject[] = [
   {
     path: '/',
-    element: <Login />,
+    element: <LandingPage />,
   },
   {
     path: '/login',
