@@ -1,16 +1,5 @@
 {
-  "trailingSlash": false,
   "rewrites": [
-    {
-      "source": "/ga4-analytics/:path*",
-      "destination": "/index.html",
-      "has": [
-        {
-          "type": "header",
-          "key": "accept",
-          "value": "text/html.*"
-        }
-      ]
-    }
+    { "source": "/(.*)", "destination": "/" }
   ]
 }
