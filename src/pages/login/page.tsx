@@ -27,21 +27,13 @@ export default function Login() {
     setIsLoading(true);
     setError(null);
     try {
+      // This will redirect to Google, page will reload after auth
       await signInWithGoogle();
-
-      // Check if user intended to purchase Pro plan
-      const pendingPlan = localStorage.getItem('pending_plan');
-      if (pendingPlan === 'pro') {
-        localStorage.removeItem('pending_plan');
-        // Redirect to settings with checkout trigger
-        navigate('/settings?checkout=pro');
-      } else {
-        navigate('/property-selection');
-      }
+      // Note: The code below won't execute due to redirect
+      // Navigation after login is handled by useEffect when user state changes
     } catch (err) {
       console.error('Login error:', err);
       setError('ログインに失敗しました。もう一度お試しください。');
-    } finally {
       setIsLoading(false);
     }
   };
