@@ -1,12 +1,15 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useAuth } from '../../contexts/AuthContext';
 
 export default function Settings() {
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
   const [selectedIndustry, setSelectedIndustry] = useState('EC・小売');
   const [showDisconnectModal, setShowDisconnectModal] = useState(false);
   const [showSaveNotification, setShowSaveNotification] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const industries = [
     { id: 'ec', name: 'EC・小売', icon: 'ri-shopping-cart-line' },
@@ -22,7 +25,6 @@ export default function Settings() {
   ];
 
   const handleSave = () => {
-    // 保存処理
     setShowSaveNotification(true);
     setTimeout(() => {
       setShowSaveNotification(false);
@@ -33,13 +35,38 @@ export default function Settings() {
     navigate('/dashboard');
   };
 
-  const handleDisconnect = () => {
-    // 連携解除処理
-    navigate('/login');
+  const handleDisconnect = async () => {
+    setIsLoggingOut(true);
+    try {
+      await logout();
+      navigate('/login');
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      setIsLoggingOut(false);
+    }
+  };
+
+  const getUserInitial = () => {
+    if (user?.displayName) {
+      return user.displayName.charAt(0).toUpperCase();
+    }
+    if (user?.email) {
+      return user.email.charAt(0).toUpperCase();
+    }
+    return 'U';
+  };
+
+  const formatDate = (date: Date) => {
+    return new Intl.DateTimeFormat('ja-JP', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    }).format(date);
   };
 
   return (
-    <motion.div 
+    <motion.div
       className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-50"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -62,14 +89,14 @@ export default function Settings() {
         </div>
       </header>
 
-      <motion.main 
+      <motion.main
         className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.1 }}
       >
         {/* 連携情報 */}
-        <motion.div 
+        <motion.div
           className="bg-white rounded-xl p-6 shadow-sm border border-slate-100"
           whileHover={{ y: -2 }}
           transition={{ duration: 0.2 }}
@@ -117,12 +144,12 @@ export default function Settings() {
             onClick={() => setShowDisconnectModal(true)}
             className="mt-6 w-full py-3 bg-red-50 text-red-600 rounded-lg font-bold text-sm hover:bg-red-100 transition-colors whitespace-nowrap cursor-pointer"
           >
-            連携を解除する
+            連携を解除してログアウト
           </button>
         </motion.div>
 
         {/* 業種設定 */}
-        <motion.div 
+        <motion.div
           className="bg-white rounded-xl p-6 shadow-sm border border-slate-100"
           whileHover={{ y: -2 }}
           transition={{ duration: 0.2 }}
@@ -166,7 +193,7 @@ export default function Settings() {
         </motion.div>
 
         {/* アカウント情報 */}
-        <motion.div 
+        <motion.div
           className="bg-white rounded-xl p-6 shadow-sm border border-slate-100"
           whileHover={{ y: -2 }}
           transition={{ duration: 0.2 }}
@@ -177,18 +204,35 @@ export default function Settings() {
           </h2>
 
           <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-xl">
-            <div className="w-14 h-14 flex items-center justify-center bg-gradient-to-br from-teal-500 to-cyan-500 rounded-full text-white font-bold text-xl">
-              U
-            </div>
+            {user?.photoURL ? (
+              <img
+                src={user.photoURL}
+                alt="Profile"
+                className="w-14 h-14 rounded-full object-cover"
+              />
+            ) : (
+              <div className="w-14 h-14 flex items-center justify-center bg-gradient-to-br from-teal-500 to-cyan-500 rounded-full text-white font-bold text-xl">
+                {getUserInitial()}
+              </div>
+            )}
             <div>
-              <h3 className="font-bold text-slate-800">user@example.com</h3>
-              <p className="text-sm text-slate-600">登録日: 2024年1月15日</p>
+              <h3 className="font-bold text-slate-800">
+                {user?.displayName || user?.email || 'ユーザー'}
+              </h3>
+              {user?.email && user?.displayName && (
+                <p className="text-sm text-slate-600">{user.email}</p>
+              )}
+              {user?.metadata?.creationTime && (
+                <p className="text-sm text-slate-500">
+                  登録日: {formatDate(new Date(user.metadata.creationTime))}
+                </p>
+              )}
             </div>
           </div>
         </motion.div>
 
         {/* 保存ボタン */}
-        <motion.div 
+        <motion.div
           className="flex items-center justify-end gap-3"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -217,7 +261,7 @@ export default function Settings() {
       <AnimatePresence>
         {showDisconnectModal && (
           <>
-            <motion.div 
+            <motion.div
               className="fixed inset-0 bg-black/50 z-50"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -226,7 +270,7 @@ export default function Settings() {
               onClick={() => setShowDisconnectModal(false)}
             />
             <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-              <motion.div 
+              <motion.div
                 className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6"
                 initial={{ opacity: 0, scale: 0.9, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -237,26 +281,40 @@ export default function Settings() {
                 <div className="w-16 h-16 flex items-center justify-center bg-red-100 rounded-full mx-auto mb-4">
                   <i className="ri-alert-line text-3xl text-red-600"></i>
                 </div>
-                
+
                 <h2 className="text-xl font-bold text-slate-800 text-center mb-2">
-                  連携を解除しますか？
+                  ログアウトしますか？
                 </h2>
                 <p className="text-sm text-slate-600 text-center mb-6">
-                  Google Analytics と Search Console の連携を解除すると、ダッシュボードのデータが表示されなくなります。
+                  Google Analytics と Search Console の連携を解除し、ログアウトします。再度ログインすることで連携を再開できます。
                 </p>
 
                 <div className="flex items-center gap-3">
                   <button
                     onClick={() => setShowDisconnectModal(false)}
-                    className="flex-1 py-3 bg-slate-100 text-slate-700 rounded-lg font-bold text-sm hover:bg-slate-200 transition-colors whitespace-nowrap cursor-pointer"
+                    disabled={isLoggingOut}
+                    className="flex-1 py-3 bg-slate-100 text-slate-700 rounded-lg font-bold text-sm hover:bg-slate-200 transition-colors whitespace-nowrap cursor-pointer disabled:opacity-50"
                   >
                     キャンセル
                   </button>
                   <button
                     onClick={handleDisconnect}
-                    className="flex-1 py-3 bg-red-600 text-white rounded-lg font-bold text-sm hover:bg-red-700 transition-colors whitespace-nowrap cursor-pointer"
+                    disabled={isLoggingOut}
+                    className="flex-1 py-3 bg-red-600 text-white rounded-lg font-bold text-sm hover:bg-red-700 transition-colors whitespace-nowrap cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
                   >
-                    解除する
+                    {isLoggingOut ? (
+                      <>
+                        <motion.div
+                          animate={{ rotate: 360 }}
+                          transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                        >
+                          <i className="ri-loader-4-line"></i>
+                        </motion.div>
+                        処理中...
+                      </>
+                    ) : (
+                      'ログアウト'
+                    )}
                   </button>
                 </div>
               </motion.div>
@@ -268,7 +326,7 @@ export default function Settings() {
       {/* 保存完了通知 */}
       <AnimatePresence>
         {showSaveNotification && (
-          <motion.div 
+          <motion.div
             className="fixed bottom-8 right-8 bg-teal-600 text-white px-6 py-4 rounded-lg shadow-lg flex items-center gap-3 z-50"
             initial={{ opacity: 0, y: 50, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
