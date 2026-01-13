@@ -70,4 +70,11 @@ export default defineConfig({
     port: 3000,
     host: "0.0.0.0",
   },
+  define: {
+    __BASE_PATH__: JSON.stringify("/ga4-analytics"),
+    __IS_PREVIEW__: JSON.stringify(false),
+    __READDY_PROJECT_ID__: JSON.stringify(""),
+    __READDY_VERSION_ID__: JSON.stringify(""),
+    __READDY_AI_DOMAIN__: JSON.stringify(""),
+  },
 });
