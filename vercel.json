@@ -1,5 +1,16 @@
 {
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/" }
+  "routes": [
+    {
+      "src": "/ga4-analytics/assets/(.*)",
+      "dest": "/assets/$1"
+    },
+    {
+      "src": "/ga4-analytics/(.*\\.(js|css|ico|png|jpg|jpeg|svg|woff|woff2|ttf|eot))",
+      "dest": "/$1"
+    },
+    {
+      "src": "/ga4-analytics(/.*)?",
+      "dest": "/index.html"
+    }
   ]
 }
