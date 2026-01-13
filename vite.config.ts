@@ -5,6 +5,10 @@ import AutoImport from "unplugin-auto-import/vite";
 
 // https://vite.dev/config/
 export default defineConfig({
+  base: "/ga4-analytics/",
+  define: {
+    __BASE_PATH__: JSON.stringify("/ga4-analytics"),
+  },
   plugins: [
     react(),
     AutoImport({

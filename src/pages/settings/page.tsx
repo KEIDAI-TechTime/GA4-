@@ -1,28 +1,75 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useAuth } from '../../context/AuthContext';
+import { useSubscription } from '../../hooks/useSubscription';
+import { PLANS, STRIPE_CONFIG } from '../../config/stripe';
+
+const industries = [
+  { id: 'it', name: 'IT・テクノロジー', icon: 'ri-code-s-slash-line' },
+  { id: 'retail', name: '小売・EC', icon: 'ri-shopping-cart-line' },
+  { id: 'restaurant', name: '飲食', icon: 'ri-restaurant-line' },
+  { id: 'beauty', name: '美容・サロン', icon: 'ri-scissors-line' },
+  { id: 'medical', name: '医療・ヘルスケア', icon: 'ri-hospital-line' },
+  { id: 'education', name: '教育', icon: 'ri-book-open-line' },
+  { id: 'realestate', name: '不動産', icon: 'ri-home-line' },
+  { id: 'finance', name: '金融・保険', icon: 'ri-bank-line' },
+  { id: 'manufacturing', name: '製造業', icon: 'ri-settings-3-line' },
+  { id: 'travel', name: '旅行・宿泊', icon: 'ri-plane-line' },
+  { id: 'media', name: 'メディア・ブログ', icon: 'ri-article-line' },
+  { id: 'professional', name: '士業・コンサル', icon: 'ri-briefcase-line' },
+  { id: 'other', name: 'その他', icon: 'ri-more-line' },
+];
 
 export default function Settings() {
   const navigate = useNavigate();
-  const [selectedIndustry, setSelectedIndustry] = useState('EC・小売');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const { user, logout } = useAuth();
+  const { subscription, isPro, createCheckout, openPortal, loading: subscriptionLoading } = useSubscription();
   const [showDisconnectModal, setShowDisconnectModal] = useState(false);
   const [showSaveNotification, setShowSaveNotification] = useState(false);
+  const [isUpgrading, setIsUpgrading] = useState(false);
 
-  const industries = [
-    { id: 'ec', name: 'EC・小売', icon: 'ri-shopping-cart-line' },
-    { id: 'restaurant', name: '飲食店', icon: 'ri-restaurant-line' },
-    { id: 'beauty', name: '美容・サロン', icon: 'ri-scissors-line' },
-    { id: 'medical', name: '医療・クリニック', icon: 'ri-hospital-line' },
-    { id: 'education', name: '教育・スクール', icon: 'ri-book-open-line' },
-    { id: 'realestate', name: '不動産', icon: 'ri-building-line' },
-    { id: 'consulting', name: 'コンサルティング', icon: 'ri-briefcase-line' },
-    { id: 'it', name: 'IT・Web制作', icon: 'ri-code-line' },
-    { id: 'manufacturing', name: '製造業', icon: 'ri-tools-line' },
-    { id: 'other', name: 'その他', icon: 'ri-more-line' }
-  ];
+  // Auto-trigger checkout if redirected from landing page with Pro intent
+  useEffect(() => {
+    const checkoutPlan = searchParams.get('checkout');
+    if (checkoutPlan === 'pro' && !isPro && !subscriptionLoading) {
+      // Clear the query param
+      setSearchParams({});
+      // Trigger checkout directly
+      setIsUpgrading(true);
+      createCheckout(STRIPE_CONFIG.proPriceId)
+        .catch((error) => {
+          console.error('Auto checkout error:', error);
+          alert('アップグレードに失敗しました。もう一度お試しください。');
+        })
+        .finally(() => {
+          setIsUpgrading(false);
+        });
+    }
+  }, [searchParams, isPro, subscriptionLoading, createCheckout, setSearchParams]);
+
+  // 実データを取得
+  const propertyId = localStorage.getItem('selected_property') || '未設定';
+  const siteUrl = localStorage.getItem('search_console_site') || '未連携';
+
+  // 保存されている業種を取得し、既定リストにあるか確認
+  const savedIndustry = localStorage.getItem('selected_industry') || 'IT・テクノロジー';
+  const isCustomIndustry = !industries.some(i => i.name === savedIndustry);
+
+  const [selectedIndustry, setSelectedIndustry] = useState(() => {
+    return isCustomIndustry ? 'その他' : savedIndustry;
+  });
+  const [customIndustry, setCustomIndustry] = useState(() => {
+    return isCustomIndustry ? savedIndustry : '';
+  });
 
   const handleSave = () => {
-    // 保存処理
+    if (selectedIndustry === 'その他' && customIndustry.trim()) {
+      localStorage.setItem('selected_industry', customIndustry.trim());
+    } else {
+      localStorage.setItem('selected_industry', selectedIndustry);
+    }
     setShowSaveNotification(true);
     setTimeout(() => {
       setShowSaveNotification(false);
@@ -33,10 +80,46 @@ export default function Settings() {
     navigate('/dashboard');
   };
 
-  const handleDisconnect = () => {
-    // 連携解除処理
+  const handleDisconnect = async () => {
+    // 連携解除: すべてのローカルデータをクリアしてログアウト
+    localStorage.removeItem('selected_property');
+    localStorage.removeItem('selected_industry');
+    localStorage.removeItem('search_console_site');
+    try {
+      await logout();
+    } catch (e) {
+      console.error('Logout error:', e);
+    }
     navigate('/login');
   };
+
+  const handleUpgrade = async () => {
+    try {
+      setIsUpgrading(true);
+      await createCheckout(STRIPE_CONFIG.proPriceId);
+    } catch (error) {
+      console.error('Upgrade error:', error);
+      alert('アップグレードに失敗しました。もう一度お試しください。');
+    } finally {
+      setIsUpgrading(false);
+    }
+  };
+
+  const handleManageSubscription = async () => {
+    try {
+      await openPortal();
+    } catch (error) {
+      console.error('Portal error:', error);
+      alert('サブスクリプション管理ページを開けませんでした。');
+    }
+  };
+
+  // ユーザー情報
+  const userEmail = user?.email || 'ゲスト';
+  const userInitial = userEmail.charAt(0).toUpperCase();
+  const createdAt = user?.metadata?.creationTime
+    ? new Date(user.metadata.creationTime).toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric' })
+    : '不明';
 
   return (
     <motion.div 
@@ -88,11 +171,13 @@ export default function Settings() {
                 </div>
                 <div>
                   <h3 className="font-bold text-slate-800 text-sm">Google Analytics 4</h3>
-                  <p className="text-sm text-slate-600">example-property-123456</p>
+                  <p className="text-sm text-slate-600 font-mono">{propertyId}</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold">連携中</span>
+                <span className={`px-3 py-1 rounded-full text-xs font-bold ${propertyId !== '未設定' ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-500'}`}>
+                  {propertyId !== '未設定' ? '連携中' : '未連携'}
+                </span>
               </div>
             </div>
 
@@ -104,11 +189,13 @@ export default function Settings() {
                 </div>
                 <div>
                   <h3 className="font-bold text-slate-800 text-sm">Google Search Console</h3>
-                  <p className="text-sm text-slate-600">https://example.com</p>
+                  <p className="text-sm text-slate-600">{siteUrl}</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold">連携中</span>
+                <span className={`px-3 py-1 rounded-full text-xs font-bold ${siteUrl !== '未連携' ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-500'}`}>
+                  {siteUrl !== '未連携' ? '連携中' : '未連携'}
+                </span>
               </div>
             </div>
           </div>
@@ -163,10 +250,26 @@ export default function Settings() {
               </button>
             ))}
           </div>
+
+          {/* その他選択時の自由入力欄 */}
+          {selectedIndustry === 'その他' && (
+            <div className="mt-4">
+              <label className="block text-sm font-medium text-slate-700 mb-2">
+                業種・サイトの種類を入力してください
+              </label>
+              <input
+                type="text"
+                value={customIndustry}
+                onChange={(e) => setCustomIndustry(e.target.value)}
+                placeholder="例: 人材紹介、ペットショップ、スポーツジム"
+                className="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:border-teal-500 focus:outline-none transition-colors"
+              />
+            </div>
+          )}
         </motion.div>
 
         {/* アカウント情報 */}
-        <motion.div 
+        <motion.div
           className="bg-white rounded-xl p-6 shadow-sm border border-slate-100"
           whileHover={{ y: -2 }}
           transition={{ duration: 0.2 }}
@@ -178,13 +281,136 @@ export default function Settings() {
 
           <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-xl">
             <div className="w-14 h-14 flex items-center justify-center bg-gradient-to-br from-teal-500 to-cyan-500 rounded-full text-white font-bold text-xl">
-              U
+              {userInitial}
             </div>
             <div>
-              <h3 className="font-bold text-slate-800">user@example.com</h3>
-              <p className="text-sm text-slate-600">登録日: 2024年1月15日</p>
+              <h3 className="font-bold text-slate-800">{userEmail}</h3>
+              <p className="text-sm text-slate-600">登録日: {createdAt}</p>
             </div>
           </div>
+        </motion.div>
+
+        {/* プラン・サブスクリプション */}
+        <motion.div
+          className="bg-white rounded-xl p-6 shadow-sm border border-slate-100"
+          whileHover={{ y: -2 }}
+          transition={{ duration: 0.2 }}
+        >
+          <h2 className="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
+            <i className="ri-vip-crown-line text-teal-600"></i>
+            プラン
+          </h2>
+
+          {subscriptionLoading ? (
+            <div className="animate-pulse space-y-4">
+              <div className="h-20 bg-slate-100 rounded-xl"></div>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {/* 現在のプラン */}
+              <div className={`p-4 rounded-xl border-2 ${isPro ? 'border-teal-500 bg-teal-50' : 'border-slate-200 bg-slate-50'}`}>
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-3">
+                    <div className={`w-12 h-12 flex items-center justify-center rounded-lg ${isPro ? 'bg-teal-100' : 'bg-slate-200'}`}>
+                      <i className={`${isPro ? 'ri-vip-crown-fill text-teal-600' : 'ri-user-line text-slate-600'} text-2xl`}></i>
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-slate-800">
+                        {isPro ? PLANS.pro.name : PLANS.free.name}
+                      </h3>
+                      <p className="text-sm text-slate-600">
+                        {isPro ? PLANS.pro.priceLabel : PLANS.free.priceLabel}
+                      </p>
+                    </div>
+                  </div>
+                  <span className={`px-3 py-1 rounded-full text-xs font-bold ${isPro ? 'bg-teal-500 text-white' : 'bg-slate-200 text-slate-600'}`}>
+                    {isPro ? '利用中' : '現在のプラン'}
+                  </span>
+                </div>
+
+                {/* プランの機能一覧 */}
+                <ul className="space-y-2 mt-4">
+                  {(isPro ? PLANS.pro.features : PLANS.free.features).map((feature, index) => (
+                    <li key={index} className="flex items-center gap-2 text-sm text-slate-600">
+                      <i className="ri-check-line text-teal-500"></i>
+                      {feature}
+                    </li>
+                  ))}
+                </ul>
+
+                {/* サブスクリプション期間 */}
+                {isPro && subscription?.currentPeriodEnd && (
+                  <div className="mt-4 pt-4 border-t border-slate-200">
+                    <p className="text-sm text-slate-600">
+                      次回請求日: {new Date(subscription.currentPeriodEnd * 1000).toLocaleDateString('ja-JP')}
+                    </p>
+                    {subscription.cancelAtPeriodEnd && (
+                      <p className="text-sm text-orange-600 mt-1">
+                        ※ 期間終了後にキャンセルされます
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* アップグレード/管理ボタン */}
+              {isPro ? (
+                <button
+                  onClick={handleManageSubscription}
+                  className="w-full py-3 bg-slate-100 text-slate-700 rounded-lg font-bold text-sm hover:bg-slate-200 transition-colors cursor-pointer"
+                >
+                  <i className="ri-settings-3-line mr-2"></i>
+                  サブスクリプションを管理
+                </button>
+              ) : (
+                <div className="space-y-3">
+                  {/* Pro プランの紹介 */}
+                  <div className="p-4 bg-gradient-to-r from-teal-500 to-cyan-500 rounded-xl text-white">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-10 h-10 flex items-center justify-center bg-white/20 rounded-lg">
+                        <i className="ri-vip-crown-fill text-xl"></i>
+                      </div>
+                      <div>
+                        <h4 className="font-bold">{PLANS.pro.name}</h4>
+                        <p className="text-sm opacity-90">{PLANS.pro.priceLabel}</p>
+                      </div>
+                    </div>
+                    <ul className="space-y-1 text-sm opacity-90 mb-4">
+                      <li className="flex items-center gap-2">
+                        <i className="ri-check-line"></i>
+                        AI分析が無制限
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <i className="ri-check-line"></i>
+                        PDF/Excelエクスポート
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <i className="ri-check-line"></i>
+                        メール通知・週次レポート
+                      </li>
+                    </ul>
+                    <button
+                      onClick={handleUpgrade}
+                      disabled={isUpgrading}
+                      className="w-full py-3 bg-white text-teal-600 rounded-lg font-bold text-sm hover:bg-white/90 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {isUpgrading ? (
+                        <span className="flex items-center justify-center gap-2">
+                          <div className="w-4 h-4 border-2 border-teal-600 border-t-transparent rounded-full animate-spin"></div>
+                          処理中...
+                        </span>
+                      ) : (
+                        <>
+                          <i className="ri-arrow-up-line mr-2"></i>
+                          Proにアップグレード
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </motion.div>
 
         {/* 保存ボタン */}

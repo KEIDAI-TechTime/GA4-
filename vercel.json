@@ -1,0 +1,7 @@
+{
+  "rewrites": [
+    { "source": "/ga4-analytics/api/:path*", "destination": "/api/:path*" },
+    { "source": "/ga4-analytics/:path*", "destination": "/:path*" },
+    { "source": "/((?!api/).*)", "destination": "/index.html" }
+  ]
+}
