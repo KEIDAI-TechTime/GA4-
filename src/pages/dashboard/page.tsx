@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import Header from './components/Header';
+import SiteOverview from './components/SiteOverview';
 import NotificationAlert from './components/NotificationAlert';
 import PriorityAction from './components/PriorityAction';
 import SummaryCards from './components/SummaryCards';
@@ -36,55 +37,80 @@ const itemVariants = {
 
 export default function Dashboard() {
   const [dateRange, setDateRange] = useState('30days');
+  const [lastUpdated, setLastUpdated] = useState<Date>(() => new Date());
+  const [refreshKey, setRefreshKey] = useState(0);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const handleRefresh = useCallback(() => {
+    setIsRefreshing(true);
+    // Increment key to force re-render of all components
+    setRefreshKey(prev => prev + 1);
+    setLastUpdated(new Date());
+    // Simulate refresh completion
+    setTimeout(() => {
+      setIsRefreshing(false);
+    }, 1500);
+  }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-50">
-      <Header dateRange={dateRange} setDateRange={setDateRange} />
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
+      <Header
+        dateRange={dateRange}
+        setDateRange={setDateRange}
+        lastUpdated={lastUpdated}
+        onRefresh={handleRefresh}
+        isRefreshing={isRefreshing}
+      />
       
-      <motion.main 
+      <motion.main
+        key={refreshKey}
         className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6"
         variants={containerVariants}
         initial="hidden"
         animate="visible"
       >
         <motion.div variants={itemVariants}>
-          <NotificationAlert />
+          <SiteOverview dateRange={dateRange} />
         </motion.div>
 
         <motion.div variants={itemVariants}>
-          <PriorityAction />
+          <NotificationAlert dateRange={dateRange} />
         </motion.div>
 
         <motion.div variants={itemVariants}>
-          <SummaryCards />
+          <PriorityAction dateRange={dateRange} />
         </motion.div>
 
         <motion.div variants={itemVariants}>
-          <AccessTrendChart />
+          <SummaryCards dateRange={dateRange} />
         </motion.div>
 
-        <motion.div 
+        <motion.div variants={itemVariants}>
+          <AccessTrendChart dateRange={dateRange} />
+        </motion.div>
+
+        <motion.div
           className="grid grid-cols-1 lg:grid-cols-2 gap-6"
           variants={itemVariants}
         >
-          <PageRanking />
+          <PageRanking dateRange={dateRange} />
           <KeywordRanking />
         </motion.div>
 
-        <motion.div 
+        <motion.div
           className="grid grid-cols-1 lg:grid-cols-2 gap-6"
           variants={itemVariants}
         >
-          <TrafficSources />
-          <DeviceBreakdown />
+          <TrafficSources dateRange={dateRange} />
+          <DeviceBreakdown dateRange={dateRange} />
         </motion.div>
 
         <motion.div variants={itemVariants}>
-          <BenchmarkComparison />
+          <BenchmarkComparison dateRange={dateRange} />
         </motion.div>
 
         <motion.div variants={itemVariants}>
-          <ImprovementSuggestions />
+          <ImprovementSuggestions dateRange={dateRange} />
         </motion.div>
       </motion.main>
     </div>
