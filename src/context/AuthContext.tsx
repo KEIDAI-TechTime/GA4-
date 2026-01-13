@@ -1,6 +1,8 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import {
   signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
   signOut,
   onAuthStateChanged,
   type User,
@@ -25,6 +27,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [accessToken, setAccessToken] = useState<string | null>(null);
 
   useEffect(() => {
+    // Handle redirect result from Google sign-in
+    getRedirectResult(auth).then((result) => {
+      if (result) {
+        // @ts-expect-error - credential has accessToken
+        const credential = result._tokenResponse;
+        if (credential?.oauthAccessToken) {
+          localStorage.setItem('google_access_token', credential.oauthAccessToken);
+        }
+      }
+    }).catch((error) => {
+      console.error('Redirect result error:', error);
+    });
+
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setUser(user);
       if (user) {
@@ -41,14 +56,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signInWithGoogle = async (): Promise<UserCredential> => {
-    const result = await signInWithPopup(auth, googleProvider);
-    // Get OAuth access token for Google APIs
-    // @ts-expect-error - credential has accessToken
-    const credential = result._tokenResponse;
-    if (credential?.oauthAccessToken) {
-      localStorage.setItem('google_access_token', credential.oauthAccessToken);
-    }
-    return result;
+    // Use redirect for better compatibility with proxied domains
+    // The result will be handled by getRedirectResult in useEffect
+    await signInWithRedirect(auth, googleProvider);
+    // This line won't be reached due to redirect, but TypeScript needs a return
+    return {} as UserCredential;
   };
 
   const logout = async () => {
