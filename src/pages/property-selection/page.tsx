@@ -10,8 +10,8 @@ interface Property {
 }
 
 export default function PropertySelection() {
+  const navigate = useNavigate();
   const [selectedGA4, setSelectedGA4] = useState<string>('');
-  const [selectedSearchConsole, setSelectedSearchConsole] = useState<string>('');
 
   // モックデータ（実際はGoogle APIから取得）
   const ga4Properties: Property[] = [
@@ -20,15 +20,9 @@ export default function PropertySelection() {
     { id: 'ga4-3', name: 'コーポレートサイト - GA4', url: 'https://corporate.example.com', type: 'GA4' },
   ];
 
-  const searchConsoleProperties: Property[] = [
-    { id: 'sc-1', name: 'マイサイト', url: 'https://mysite.com', type: 'Search Console' },
-    { id: 'sc-2', name: 'ECショップ', url: 'https://shop.example.com', type: 'Search Console' },
-    { id: 'sc-3', name: 'コーポレートサイト', url: 'https://corporate.example.com', type: 'Search Console' },
-  ];
-
   const handleContinue = () => {
-    if (selectedGA4 && selectedSearchConsole) {
-      window.REACT_APP_NAVIGATE('/industry-selection');
+    if (selectedGA4) {
+      navigate('/industry-selection');
     }
   };
 
