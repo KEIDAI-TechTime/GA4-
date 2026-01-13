@@ -5,7 +5,8 @@ import AutoImport from "unplugin-auto-import/vite";
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: "/ga4-analytics/",
+  // Use root base path for Vercel - router handles subpath dynamically
+  base: "/",
   define: {
     __BASE_PATH__: JSON.stringify("/ga4-analytics"),
   },
