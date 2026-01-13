@@ -44,10 +44,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signInWithGoogle = async (): Promise<UserCredential> => {
     // Use popup for direct subdomain - works better than redirect
     const result = await signInWithPopup(auth, googleProvider);
-    // Get the Google OAuth access token
+
+    // Get the Google OAuth access token from credential
     const credential = GoogleAuthProvider.credentialFromResult(result);
     if (credential?.accessToken) {
       localStorage.setItem('google_access_token', credential.accessToken);
+    } else {
+      // Fallback: Get from internal token response
+      // @ts-expect-error - _tokenResponse is internal but contains oauthAccessToken
+      const tokenResponse = result._tokenResponse;
+      if (tokenResponse?.oauthAccessToken) {
+        localStorage.setItem('google_access_token', tokenResponse.oauthAccessToken);
+      }
     }
     return result;
   };
